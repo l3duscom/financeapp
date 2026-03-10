@@ -1,0 +1,70 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  animation: fadeIn var(--transition-slow) ease-out;
+}
+
+.balanceSection {
+  animation: fadeInUp var(--transition-slow) ease-out;
+}
+
+.chartsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+}
+
+@media (min-width: 768px) {
+  .chartsGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.chartItem {
+  animation: fadeInUp var(--transition-slow) ease-out;
+  animation-fill-mode: both;
+}
+
+.chartItem:nth-child(1) {
+  animation-delay: 100ms;
+}
+
+.chartItem:nth-child(2) {
+  animation-delay: 200ms;
+}
+
+.fullWidthSection {
+  animation: fadeInUp var(--transition-slow) ease-out;
+  animation-delay: 300ms;
+  animation-fill-mode: both;
+}
+
+.transactionsSection {
+  animation: fadeInUp var(--transition-slow) ease-out;
+  animation-delay: 400ms;
+  animation-fill-mode: both;
+}
+
+.emptyDashboard {
+  text-align: center;
+  padding: var(--space-12) var(--space-6);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+}
+
+.emptyDashboard h3 {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-3);
+}
+
+.emptyDashboard p {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-tertiary);
+  max-width: 320px;
+  margin: 0 auto;
+  line-height: 1.6;
+}

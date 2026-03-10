@@ -1,0 +1,29 @@
+{
+  "name": "FinanceApp - Gerenciador Financeiro",
+  "short_name": "FinanceApp",
+  "description": "Gerencie suas finanças pessoais de forma simples e inteligente. Controle gastos, crie metas, acompanhe orçamentos e simule investimentos.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#0a0e1a",
+  "theme_color": "#6366f1",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [],
+  "categories": ["finance", "productivity"],
+  "lang": "pt-BR",
+  "dir": "ltr"
+}
