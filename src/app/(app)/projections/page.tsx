@@ -210,7 +210,7 @@ export default function ProjectionsPage() {
                   fontSize: 13,
                 }}
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                formatter={((value: any, name: string) => [
+                formatter={((value: any, name: any) => [
                   formatCurrency(Number(value) || 0),
                   name === 'total' ? 'Patrimônio' : 'Investido',
                 ]) as any}
