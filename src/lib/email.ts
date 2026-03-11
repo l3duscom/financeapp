@@ -9,10 +9,11 @@ interface WelcomeEmailParams {
   to: string;
   name: string;
   plan: string;
+  tempPassword: string;
   resetLink?: string;
 }
 
-export async function sendWelcomeEmail({ to, name, plan, resetLink }: WelcomeEmailParams) {
+export async function sendWelcomeEmail({ to, name, plan, tempPassword, resetLink }: WelcomeEmailParams) {
   const planLabel = plan === 'annual' ? 'Anual' : 'Mensal';
   const loginUrl = `${APP_URL}/login`;
   const firstName = name.split(' ')[0];
@@ -59,9 +60,10 @@ export async function sendWelcomeEmail({ to, name, plan, resetLink }: WelcomeEma
         <p style="color:#a0a0b0;font-size:14px;margin:0 0 4px;">
           <strong style="color:#d0d0e0;">Email:</strong> ${to}
         </p>
-        <p style="color:#a0a0b0;font-size:14px;margin:0;">
-          <strong style="color:#d0d0e0;">Senha:</strong> Defina sua senha clicando no botão abaixo
+        <p style="color:#a0a0b0;font-size:14px;margin:0 0 4px;">
+          <strong style="color:#d0d0e0;">Senha provisória:</strong> <code style="background:rgba(99,102,241,0.15);padding:2px 8px;border-radius:4px;color:#a5b4fc;font-size:14px;">${tempPassword}</code>
         </p>
+        <p style="color:#707080;font-size:12px;margin:8px 0 0;font-style:italic;">⚠️ Recomendamos alterar sua senha após o primeiro acesso.</p>
       </div>
 
       <!-- CTA Buttons -->

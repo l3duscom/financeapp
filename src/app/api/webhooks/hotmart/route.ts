@@ -120,6 +120,7 @@ export async function POST(request: Request) {
             to: buyerEmail,
             name: data.buyer.name,
             plan,
+            tempPassword: password,
             resetLink,
           });
           console.log(`[Hotmart Webhook] Welcome email sent to ${buyerEmail}`);
