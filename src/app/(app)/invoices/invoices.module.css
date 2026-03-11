@@ -319,3 +319,280 @@
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
+
+/* ===== CSV Import Modal ===== */
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: var(--z-modal-backdrop);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  animation: fadeIn var(--transition-fast) ease-out;
+}
+
+.modal {
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  width: 100%;
+  max-width: 640px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: scaleIn var(--transition-base) ease-out;
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.modalHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  color: var(--color-accent-primary-light);
+}
+
+.modalHeaderLeft h3 {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.modalClose {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-tertiary);
+  transition: all var(--transition-fast);
+}
+
+.modalClose:hover {
+  background: var(--color-bg-glass);
+  color: var(--color-text-primary);
+}
+
+.parseWarnings {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+  font-size: var(--font-size-xs);
+}
+
+.modalSummary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summaryLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+.summaryValue {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.summaryExpense {
+  color: var(--color-expense);
+}
+
+.modalField {
+  padding: var(--space-3) var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.modalField label {
+  white-space: nowrap;
+  font-weight: var(--font-weight-medium);
+}
+
+.modalField .fieldInput {
+  flex: 1;
+  padding: var(--space-2) var(--space-3);
+}
+
+.selectAllRow {
+  padding: var(--space-2) var(--space-5);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.selectAllBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-accent-primary-light);
+  padding: var(--space-1) 0;
+  cursor: pointer;
+}
+
+.selectAllBtn:hover {
+  color: var(--color-accent-primary);
+}
+
+/* Transaction List */
+.transactionsList {
+  flex: 1;
+  overflow-y: auto;
+  max-height: 320px;
+  padding: var(--space-2) var(--space-3);
+}
+
+.txRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.txRow:last-child {
+  border-bottom: none;
+}
+
+.txRow:hover {
+  background: var(--color-bg-glass);
+}
+
+.txSelected {
+  background: rgba(99, 102, 241, 0.06);
+}
+
+.txCheck {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-sm);
+  border: 2px solid var(--color-border);
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+  color: white;
+}
+
+.txSelected .txCheck {
+  background: var(--color-accent-primary);
+  border-color: var(--color-accent-primary);
+}
+
+.txInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.txDesc {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.txDate {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-tertiary);
+}
+
+.txAmount {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  flex-shrink: 0;
+}
+
+.txExpense {
+  color: var(--color-expense);
+}
+
+.txIncome {
+  color: var(--color-income);
+}
+
+/* Modal Actions */
+.modalActions {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-border);
+}
+
+.cancelBtn {
+  flex: 1;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  background: var(--color-bg-glass);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.cancelBtn:hover {
+  background: var(--color-bg-glass-hover);
+  color: var(--color-text-primary);
+}
+
+.importBtn {
+  flex: 2;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  background: var(--gradient-primary);
+  color: white;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.importBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-glow);
+}
+
+.importBtn:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+  transform: none;
+}
+
