@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getAdminDb } from '@/lib/firebase-admin';
-import { getAdminAuth } from '@/lib/firebase-admin';
+import { getAdminDb, getAdminAuth } from '@/lib/firebase-admin';
+import { sendWelcomeEmail } from '@/lib/email';
 
 /**
  * Hotmart Webhook - Cria conta e ativa assinatura automaticamente
@@ -113,14 +113,18 @@ export async function POST(request: Request) {
         });
         console.log(`[Hotmart Webhook] New user created: ${firebaseUser.uid}`);
 
-        // Generate password reset link so user can set their own password
+        // Generate password reset link & send welcome email
         try {
           const resetLink = await adminAuth.generatePasswordResetLink(buyerEmail);
-          console.log(`[Hotmart Webhook] Password reset link generated: ${resetLink}`);
-          // In production, send this via email service (SendGrid, etc.)
-          // For now, the user can use "Esqueci minha senha" on login page
-        } catch (linkError) {
-          console.error('[Hotmart Webhook] Error generating reset link:', linkError);
+          await sendWelcomeEmail({
+            to: buyerEmail,
+            name: data.buyer.name,
+            plan,
+            resetLink,
+          });
+          console.log(`[Hotmart Webhook] Welcome email sent to ${buyerEmail}`);
+        } catch (emailError) {
+          console.error('[Hotmart Webhook] Error sending email:', emailError);
         }
       }
 
