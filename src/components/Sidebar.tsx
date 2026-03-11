@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import {
   LayoutDashboard,
   ArrowLeftRight,
@@ -15,6 +16,8 @@ import {
   CreditCard,
   Calculator,
   Bell,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import styles from './Sidebar.module.css';
 
@@ -36,6 +39,7 @@ const bottomNavItems = [
 export default function Sidebar() {
   const pathname = usePathname();
   const { profile, signOut } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   return (
     <aside className={styles.sidebar} id="sidebar-navigation">
@@ -94,6 +98,12 @@ export default function Sidebar() {
           </button>
         </div>
       </nav>
+
+      {/* Theme Toggle */}
+      <button onClick={toggleTheme} className={styles.themeToggle}>
+        {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+        <span>{theme === 'dark' ? 'Tema claro' : 'Tema escuro'}</span>
+      </button>
 
       {/* User Section */}
       <div className={styles.userSection}>
