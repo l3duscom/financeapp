@@ -11,6 +11,16 @@ import {
   getCategories,
 } from '@/lib/firestore';
 import { parseCSV, readCSVFile, type ParsedTransaction } from '@/lib/csv-parser';
+import {
+  uploadInvoiceFile,
+  saveInvoice,
+  getInvoices,
+  deleteInvoice,
+  formatFileSize,
+  isValidInvoiceFile,
+  type Invoice,
+} from '@/lib/storage';
+import TransactionIcon from '@/components/TransactionIcon';
 import type { CreditCard, CardBrand, Transaction, Category } from '@/types';
 import {
   CreditCard as CreditCardIcon,
@@ -24,6 +34,8 @@ import {
   Upload,
   DollarSign,
   FileSpreadsheet,
+  FileText,
+  Download,
   Check,
   Ban,
   ChevronDown,
@@ -77,104 +89,6 @@ function BrandDisplay({ brand }: { brand: CardBrand }) {
 const formatCurrency = (v: number) =>
   new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(v);
 
-const EMOJI_MAP: [RegExp, string][] = [
-  // Streaming & entretenimento
-  [/netflix/i, '🍿'],
-  [/spotify/i, '🎵'],
-  [/disney/i, '🏰'],
-  [/hbo|max/i, '🎬'],
-  [/youtube|yt/i, '📺'],
-  [/prime\s*video|amazon\s*prime/i, '📦'],
-  [/twitch/i, '🎮'],
-  [/apple\s*(tv|music)/i, '🍎'],
-  [/deezer|tidal/i, '🎧'],
-  [/steam|playstation|xbox|game/i, '🕹️'],
-  [/cinema/i, '🎞️'],
-  // Alimentação
-  [/ifood|rappi|uber\s*eats|delivery|99\s*food/i, '🛵'],
-  [/mercado|supermercado|carrefour|pão\s*de\s*açúcar|extra|atacadão|assaí|bigbox/i, '🛒'],
-  [/restaurante|almoço|jantar|lanchonete|burger|pizza|sushi|churrasco/i, '🍽️'],
-  [/padaria|pão|bakery|confeitaria/i, '🥐'],
-  [/café|cafeteria|starbucks|coffee/i, '☕'],
-  [/bar\b|cerveja|chopp|happy\s*hour/i, '🍺'],
-  [/açougue|carne|frigorífico/i, '🥩'],
-  [/hortifruti|verdura|feira|sacolão/i, '🥬'],
-  [/doce|chocolate|sorvet/i, '🍫'],
-  [/mcdonald|mc\s*donald|burger\s*king|bk|subway|kfc/i, '🍔'],
-  // Transporte
-  [/uber(?!\s*eats)|99\s*(?!food)|cabify|lyft|táxi|taxi/i, '🚗'],
-  [/gasolina|combustível|posto|shell|ipiranga|br\b|abastec/i, '⛽'],
-  [/estacionamento|parking|zona\s*azul/i, '🅿️'],
-  [/pedágio|pedagio/i, '🛣️'],
-  [/oficina|mecânico|borracharia|pneu/i, '🔧'],
-  [/ônibus|bus|metro|metrô|trem|cptm|brt/i, '🚌'],
-  [/avião|voo|gol\b|latam|azul\b|passagem\s*aér/i, '✈️'],
-  // Saúde
-  [/farmácia|drogaria|droga\s*raia|pague\s*menos|drogasil|remédio/i, '💊'],
-  [/médico|consulta|hospital|clínica|exame|lab/i, '🏥'],
-  [/dentista|odonto/i, '🦷'],
-  [/academia|gym|smart\s*fit|crossfit|musculação/i, '🏋️'],
-  [/psicólogo|terapia|psiquiatra/i, '🧠'],
-  [/ótica|óculos|lentes/i, '👓'],
-  // Casa & utilidades
-  [/luz|enel|cpfl|cemig|eletricidade|energia/i, '💡'],
-  [/água|sabesp|saneamento|copasa/i, '💧'],
-  [/gás|comgás|ultragaz/i, '🔥'],
-  [/internet|fibra|claro|vivo|tim|oi\b|wifi/i, '📡'],
-  [/celular|telefone|recarga/i, '📱'],
-  [/aluguel|condomínio|iptu|condominio/i, '🏠'],
-  [/seguro/i, '🛡️'],
-  [/limpeza|faxina|diarista/i, '🧹'],
-  // Compras & varejo
-  [/amazon|shopee|mercado\s*livre|magalu|magazine/i, '📦'],
-  [/shein|zara|renner|c&a|riachuelo|roupa/i, '👗'],
-  [/sapato|tênis|calçado/i, '👟'],
-  [/pet\s*shop|vet|veterinário|ração/i, '🐾'],
-  [/livraria|livro|kindle/i, '📚'],
-  [/presente|gift/i, '🎁'],
-  [/joia|relógio|acessório/i, '💍'],
-  [/eletrônico|kabum|pichau|terabyte/i, '💻'],
-  [/móveis|decoração|tok\s*stok|etna/i, '🛋️'],
-  // Educação
-  [/escola|faculdade|universidade|curso|aula|mensalidade/i, '🎓'],
-  [/inglês|idioma|duolingo/i, '🌎'],
-  [/udemy|alura|coursera/i, '💡'],
-  // Lazer & viagem
-  [/hotel|airbnb|booking|hosped/i, '🏨'],
-  [/viagem|trip|passeio/i, '🌴'],
-  [/praia/i, '🏖️'],
-  [/parque|ingresso|show|teatro|evento/i, '🎪'],
-  [/salão|cabelo|barbearia|barber/i, '💇'],
-  [/manicure|unha|estética|skin/i, '💅'],
-  // Financeiro
-  [/pix|transferência|transfer/i, '💸'],
-  [/saque|caixa/i, '🏧'],
-  [/imposto|taxa|tarifa|anuidade|iof/i, '📋'],
-  [/investimento|ação|fundo|tesouro|cripto|bitcoin/i, '📈'],
-  [/assinatura|subscri/i, '🔄'],
-  // Crianças
-  [/brinquedo|toy/i, '🧸'],
-  [/fralda|bebê|baby/i, '👶'],
-];
-
-function getTransactionEmoji(description: string, category: string): string {
-  const text = `${description} ${category}`.toLowerCase();
-  for (const [pattern, emoji] of EMOJI_MAP) {
-    if (pattern.test(text)) return emoji;
-  }
-  const catMap: Record<string, string> = {
-    'alimentação': '🍴', 'mercado': '🛒', 'moradia': '🏠',
-    'transporte': '🚗', 'saúde': '❤️', 'educação': '📖',
-    'lazer': '🎯', 'utilidades': '⚡', 'vestuário': '👕',
-    'outros': '📌', 'fatura': '💳',
-  };
-  const catLower = category.toLowerCase();
-  for (const [key, emoji] of Object.entries(catMap)) {
-    if (catLower.includes(key)) return emoji;
-  }
-  return '💳';
-}
-
 export default function CardsPage() {
   const { user } = useAuth();
   const [cards, setCards] = useState<CreditCard[]>([]);
@@ -208,7 +122,12 @@ export default function CardsPage() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importCategory, setImportCategory] = useState('Fatura');
-  const csvInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // PDF upload & invoices
+  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [cardInvoices, setCardInvoices] = useState<Invoice[]>([]);
 
   // Add card form
   const [formName, setFormName] = useState('');
@@ -333,23 +252,68 @@ export default function CardsPage() {
     } catch { setError('Erro ao salvar despesa'); } finally { setSavingExpense(false); }
   };
 
-  // ===== CSV import into card =====
-  const handleCSVFile = async (file: File) => {
-    if (!selectedCard) return;
+  // ===== Load invoices for selected card =====
+  const loadCardInvoices = useCallback(async () => {
+    if (!user || !selectedCard) return;
     try {
-      const content = await readCSVFile(file);
-      const result = parseCSV(content);
-      if (result.transactions.length === 0) {
-        setError(result.errors[0] || 'Nenhuma transação encontrada no CSV');
-        return;
-      }
-      setParsedTransactions(result.transactions);
-      setParseErrors(result.errors);
-      setImportCategory(selectedCard.name);
-      setShowImportModal(true);
-    } catch {
-      setError('Erro ao ler o arquivo CSV');
+      const all = await getInvoices(user.uid);
+      setCardInvoices(all.filter((inv) => inv.cardName === selectedCard.name));
+    } catch (err) {
+      console.error('Error loading invoices:', err);
     }
+  }, [user, selectedCard]);
+
+  useEffect(() => {
+    if (selectedCard) loadCardInvoices();
+  }, [selectedCard, loadCardInvoices]);
+
+  // ===== Unified file upload (PDF or CSV) =====
+  const handleFileUpload = async (file: File) => {
+    if (!user || !selectedCard) return;
+
+    const validation = isValidInvoiceFile(file);
+    if (!validation.valid) { setError(validation.error || 'Arquivo inválido'); return; }
+
+    if (file.type === 'text/csv' || file.name.endsWith('.csv')) {
+      try {
+        const content = await readCSVFile(file);
+        const result = parseCSV(content);
+        if (result.transactions.length === 0) {
+          setError(result.errors[0] || 'Nenhuma transação encontrada no CSV');
+          return;
+        }
+        setParsedTransactions(result.transactions);
+        setParseErrors(result.errors);
+        setImportCategory(selectedCard.name);
+        setShowImportModal(true);
+      } catch { setError('Erro ao ler o arquivo CSV'); }
+      return;
+    }
+
+    setError(''); setUploading(true); setUploadProgress(0);
+    try {
+      const now = new Date();
+      const { url, storagePath } = await uploadInvoiceFile(
+        user.uid, file, (p) => setUploadProgress(p)
+      );
+      await saveInvoice(user.uid, {
+        fileName: file.name, fileUrl: url, storagePath,
+        fileSize: file.size, fileType: file.type,
+        cardName: selectedCard.name,
+        month: filterMonth, year: filterYear,
+      });
+      setSuccess('Fatura enviada com sucesso!');
+      setTimeout(() => setSuccess(''), 3000);
+      loadCardInvoices();
+    } catch { setError('Erro ao enviar fatura.'); }
+    finally { setUploading(false); setUploadProgress(0); }
+  };
+
+  const handleDeleteInvoice = async (inv: Invoice) => {
+    try {
+      await deleteInvoice(inv.id, inv.storagePath);
+      setCardInvoices((prev) => prev.filter((i) => i.id !== inv.id));
+    } catch (err) { console.error('Error deleting invoice:', err); }
   };
 
   const handleImportTransactions = async () => {
@@ -438,13 +402,13 @@ export default function CardsPage() {
           <button className={styles.actionBtnPrimary} onClick={openExpenseModal}>
             <Plus size={16} /> Nova Despesa
           </button>
-          <button className={styles.actionBtnSecondary} onClick={() => csvInputRef.current?.click()}>
-            <Upload size={16} /> Importar CSV
+          <button className={styles.actionBtnSecondary} onClick={() => fileInputRef.current?.click()} disabled={uploading}>
+            <Upload size={16} /> {uploading ? `${Math.round(uploadProgress)}%` : 'Importar Fatura'}
           </button>
           <input
-            ref={csvInputRef} type="file" accept=".csv"
+            ref={fileInputRef} type="file" accept=".pdf,.csv"
             className={styles.hiddenInput}
-            onChange={(e) => { if (e.target.files?.[0]) handleCSVFile(e.target.files[0]); e.target.value = ''; }}
+            onChange={(e) => { if (e.target.files?.[0]) handleFileUpload(e.target.files[0]); e.target.value = ''; }}
           />
         </div>
 
@@ -482,7 +446,7 @@ export default function CardsPage() {
             <div className={styles.extratoList}>
               {cardTransactions.map((tx) => (
                 <div key={tx.id} className={styles.extratoItem}>
-                  <div className={styles.extratoEmoji}>{getTransactionEmoji(tx.description, tx.category)}</div>
+                  <div className={styles.extratoEmoji}><TransactionIcon description={tx.description} category={tx.category} size={18} /></div>
                   <div className={styles.extratoInfo}>
                     <span className={styles.extratoDesc}>{tx.description}</span>
                     <span className={styles.extratoAmount}>{formatCurrency(tx.amount)}</span>
@@ -495,6 +459,34 @@ export default function CardsPage() {
             </div>
           )}
         </div>
+
+        {/* Faturas Enviadas */}
+        {cardInvoices.length > 0 && (
+          <div className={styles.invoicesSection}>
+            <h3 className={styles.sectionTitle}>Faturas Enviadas</h3>
+            <div className={styles.invoicesList}>
+              {cardInvoices.map((inv) => (
+                <div key={inv.id} className={styles.invoiceRow}>
+                  <div className={styles.invoiceFileIcon}>{inv.fileType === 'application/pdf' ? '📄' : '📊'}</div>
+                  <div className={styles.invoiceFileInfo}>
+                    <span className={styles.invoiceFileName}>{inv.fileName}</span>
+                    <span className={styles.invoiceFileMeta}>
+                      {MONTHS[inv.month]} {inv.year} · {formatFileSize(inv.fileSize)}
+                    </span>
+                  </div>
+                  <div className={styles.invoiceFileActions}>
+                    <a href={inv.fileUrl} target="_blank" rel="noopener noreferrer" className={styles.invoiceActionBtn} aria-label="Abrir fatura">
+                      <Download size={15} />
+                    </a>
+                    <button onClick={() => handleDeleteInvoice(inv)} className={`${styles.invoiceActionBtn} ${styles.invoiceDeleteBtn}`} aria-label="Excluir">
+                      <Trash2 size={15} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Add Expense Modal */}
         {showExpenseModal && (

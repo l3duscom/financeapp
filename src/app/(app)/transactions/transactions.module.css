@@ -205,10 +205,15 @@
   background: var(--color-bg-glass);
 }
 
-.itemDot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+.itemEmoji {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg-glass);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
   flex-shrink: 0;
 }
 

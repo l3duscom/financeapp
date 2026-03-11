@@ -16,7 +16,7 @@ import {
   startAfter,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import type { Transaction, Category, CreditCard } from '@/types';
+import type { Transaction, Category, CreditCard, Installment } from '@/types';
 
 // ===== Transactions =====
 
@@ -277,6 +277,51 @@ export async function updateCreditCard(
 
 export async function deleteCreditCard(cardId: string): Promise<void> {
   await deleteDoc(doc(db, 'creditCards', cardId));
+}
+
+// ===== Installments =====
+
+export async function getInstallments(userId: string): Promise<Installment[]> {
+  const q = query(
+    collection(db, 'installments'),
+    where('userId', '==', userId)
+  );
+  const snapshot = await getDocs(q);
+  const items = snapshot.docs.map((d) => ({
+    id: d.id,
+    ...d.data(),
+    startDate: d.data().startDate?.toDate(),
+    createdAt: d.data().createdAt?.toDate(),
+  })) as Installment[];
+  return items.sort((a, b) => b.startDate.getTime() - a.startDate.getTime());
+}
+
+export async function addInstallment(
+  userId: string,
+  data: Omit<Installment, 'id' | 'userId' | 'createdAt'>
+): Promise<string> {
+  const docRef = await addDoc(collection(db, 'installments'), {
+    ...data,
+    userId,
+    startDate: Timestamp.fromDate(new Date(data.startDate)),
+    createdAt: Timestamp.now(),
+  });
+  return docRef.id;
+}
+
+export async function updateInstallment(
+  installmentId: string,
+  data: Partial<Omit<Installment, 'id' | 'userId' | 'createdAt'>>
+): Promise<void> {
+  const updateData: Record<string, unknown> = { ...data };
+  if (data.startDate) {
+    updateData.startDate = Timestamp.fromDate(new Date(data.startDate));
+  }
+  await updateDoc(doc(db, 'installments', installmentId), updateData);
+}
+
+export async function deleteInstallment(installmentId: string): Promise<void> {
+  await deleteDoc(doc(db, 'installments', installmentId));
 }
 
 // ===== Helpers =====

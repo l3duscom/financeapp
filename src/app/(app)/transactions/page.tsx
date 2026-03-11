@@ -11,6 +11,7 @@ import {
   getMonthlyTotals,
 } from '@/lib/firestore';
 import type { Transaction } from '@/types';
+import TransactionIcon from '@/components/TransactionIcon';
 import TransactionModal from '@/components/TransactionModal';
 import {
   Plus,
@@ -27,22 +28,6 @@ import {
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import styles from './transactions.module.css';
-
-const categoryIcons: Record<string, string> = {
-  'Alimentação': '#f59e0b',
-  'Mercado': '#10b981',
-  'Moradia': '#6366f1',
-  'Transporte': '#3b82f6',
-  'Saúde': '#ef4444',
-  'Educação': '#8b5cf6',
-  'Lazer': '#ec4899',
-  'Utilidades': '#06b6d4',
-  'Vestuário': '#f97316',
-  'Salário': '#10b981',
-  'Freelance': '#8b5cf6',
-  'Investimentos': '#6366f1',
-  'Outros': '#64748b',
-};
 
 export default function TransactionsPage() {
   const { user } = useAuth();
@@ -232,17 +217,15 @@ export default function TransactionsPage() {
         ) : (
           <div className={styles.list}>
             {filteredTransactions.map((tx, index) => {
-              const color = categoryIcons[tx.category] || '#64748b';
               return (
                 <div
                   key={tx.id}
                   className={styles.item}
                   style={{ animationDelay: `${index * 30}ms` }}
                 >
-                  <div
-                    className={styles.itemDot}
-                    style={{ backgroundColor: color }}
-                  />
+                  <div className={styles.itemEmoji}>
+                    <TransactionIcon description={tx.description} category={tx.category} size={20} />
+                  </div>
                   <div className={styles.itemInfo}>
                     <span className={styles.itemDesc}>{tx.description}</span>
                     <span className={styles.itemMeta}>

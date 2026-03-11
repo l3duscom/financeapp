@@ -124,6 +124,21 @@ export interface CreditCard {
   createdAt: Date;
 }
 
+// ===== Installment Types =====
+export interface Installment {
+  id: string;
+  userId: string;
+  description: string;
+  category: string;
+  totalAmount: number;
+  installmentAmount: number;
+  totalInstallments: number;
+  paidInstallments: number;
+  startDate: Date;
+  cardName: string;
+  createdAt: Date;
+}
+
 // ===== Dashboard Types =====
 export interface DashboardSummary {
   totalBalance: number;

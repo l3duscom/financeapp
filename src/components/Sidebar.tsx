@@ -16,6 +16,8 @@ import {
   CreditCard,
   Calculator,
   Bell,
+  Layers,
+  Tag,
   Sun,
   Moon,
 } from 'lucide-react';
@@ -24,11 +26,13 @@ import styles from './Sidebar.module.css';
 const mainNavItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/transactions', label: 'Transações', icon: ArrowLeftRight },
+  { href: '/categories', label: 'Categorias', icon: Tag },
   { href: '/budget', label: 'Orçamento', icon: PieChart },
   { href: '/goals', label: 'Metas', icon: Target },
   { href: '/projections', label: 'Simulador', icon: Calculator },
   { href: '/invoices', label: 'Faturas', icon: CreditCard },
   { href: '/cards', label: 'Cartões', icon: Wallet },
+  { href: '/installments', label: 'Parcelas', icon: Layers },
   { href: '/reports', label: 'Relatórios', icon: BarChart3 },
   { href: '/alerts', label: 'Alertas', icon: Bell },
 ];
