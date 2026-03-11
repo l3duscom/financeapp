@@ -23,7 +23,25 @@ interface ParseResult {
 }
 
 /**
+ * Conta ocorrências do separador que estão FORA de aspas (evita contar vírgulas dentro de "campo, com vírgula")
+ */
+function countSeparatorOutsideQuotes(line: string, sep: string): number {
+  let count = 0;
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') {
+      inQuotes = !inQuotes;
+    } else if (!inQuotes && c === sep) {
+      count++;
+    }
+  }
+  return count;
+}
+
+/**
  * Detecta o separador do CSV (vírgula, ponto-e-vírgula ou tab)
+ * Usa contagem fora de aspas para não confundir com separadores dentro de campos
  */
 function detectSeparator(firstLine: string): string {
   const separators = [';', ',', '\t'];
@@ -31,7 +49,7 @@ function detectSeparator(firstLine: string): string {
   let maxCount = 0;
 
   for (const sep of separators) {
-    const count = (firstLine.match(new RegExp(`\\${sep}`, 'g')) || []).length;
+    const count = countSeparatorOutsideQuotes(firstLine, sep);
     if (count > maxCount) {
       maxCount = count;
       best = sep;
@@ -39,6 +57,37 @@ function detectSeparator(firstLine: string): string {
   }
 
   return best;
+}
+
+/**
+ * Divide uma linha CSV respeitando campos entre aspas (ex: "Loja, Filial"; 01/01/2025; 100)
+ * Assim o separador dentro de aspas não quebra a coluna.
+ */
+function splitCSVLine(line: string, separator: string): string[] {
+  const result: string[] = [];
+  let current = '';
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const c = line[i];
+    if (c === '"') {
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (inQuotes) {
+      current += c;
+    } else if (c === separator) {
+      result.push(current.trim());
+      current = '';
+    } else {
+      current += c;
+    }
+  }
+  result.push(current.trim());
+  return result;
 }
 
 /**
@@ -137,7 +186,9 @@ export function parseCSV(content: string): ParseResult {
   const errors: string[] = [];
   const transactions: ParsedTransaction[] = [];
 
-  const lines = content
+  // Remove BOM se o arquivo veio do Excel/Windows
+  const normalized = content.replace(/^\uFEFF/, '');
+  const lines = normalized
     .split(/\r?\n/)
     .map((l) => l.trim())
     .filter((l) => l.length > 0);
@@ -147,7 +198,7 @@ export function parseCSV(content: string): ParseResult {
   }
 
   const separator = detectSeparator(lines[0]);
-  const allRows = lines.map((line) => line.split(separator));
+  const allRows = lines.map((line) => splitCSVLine(line, separator));
 
   // Detect if first row is header
   const firstRowHasDate = parseDate(allRows[0][0]) !== null;
@@ -164,13 +215,14 @@ export function parseCSV(content: string): ParseResult {
 
   let idCounter = 0;
 
+  const minCols = Math.max(dateCol, descCol, amountCol) + 1;
   for (let i = 0; i < dataRows.length; i++) {
     const row = dataRows[i];
-    if (row.length < 2) continue; // skip malformed rows
+    if (row.length < minCols) continue; // linha com menos colunas que o esperado
 
-    const rawDate = row[dateCol] || '';
-    const rawDesc = row[descCol] || '';
-    const rawAmount = row[amountCol] || '';
+    const rawDate = (row[dateCol] ?? '').trim();
+    const rawDesc = (row[descCol] ?? '').trim();
+    const rawAmount = (row[amountCol] ?? '').trim();
 
     const parsedDate = parseDate(rawDate);
     const parsedAmount = parseAmount(rawAmount);
@@ -185,8 +237,7 @@ export function parseCSV(content: string): ParseResult {
       continue;
     }
 
-    const description = rawDesc.replace(/['"]/g, '').trim();
-    if (!description) continue;
+    const description = rawDesc.replace(/['"]/g, '').trim() || `Transação ${i + 1}`;
 
     transactions.push({
       id: `csv-${idCounter++}`,
