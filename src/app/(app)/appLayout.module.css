@@ -52,3 +52,125 @@
   font-size: var(--font-size-sm);
   color: var(--color-text-tertiary);
 }
+
+/* Trial Banners */
+.trialBanner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-warning-bg);
+  border-bottom: 1px solid rgba(245, 158, 11, 0.2);
+  color: var(--color-warning);
+  font-size: var(--font-size-sm);
+}
+
+.trialExpiredBanner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  background: var(--color-expense-bg);
+  border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--color-expense);
+  font-size: var(--font-size-sm);
+}
+
+.trialLink {
+  color: inherit;
+  font-weight: var(--font-weight-semibold);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Blocked Overlay */
+.blockedOverlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100dvh - 64px);
+  padding: var(--space-6);
+}
+
+.blockedCard {
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  padding: var(--space-10) var(--space-8);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  animation: fadeInUp var(--transition-slow) ease-out;
+}
+
+.blockedIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--color-expense-bg);
+  color: var(--color-expense);
+  margin-bottom: var(--space-5);
+}
+
+.blockedTitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--space-3);
+}
+
+.blockedDesc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: 1.7;
+  margin-bottom: var(--space-8);
+}
+
+.blockedActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.blockedCtaPrimary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--gradient-primary);
+  color: white !important;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md), var(--shadow-glow);
+  transition: all var(--transition-fast);
+}
+
+.blockedCtaPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg), var(--shadow-glow-strong);
+}
+
+.blockedCtaSecondary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-tertiary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.blockedCtaSecondary:hover {
+  border-color: var(--color-border-hover);
+  color: var(--color-text-secondary);
+}

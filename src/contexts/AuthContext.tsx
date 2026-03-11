@@ -10,11 +10,13 @@ import {
 import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
   signOut as firebaseSignOut,
   sendPasswordResetEmail,
   type User,
 } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, deleteDoc, Timestamp } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import type { UserProfile } from '@/types';
 
@@ -27,6 +29,7 @@ interface AuthState {
 
 interface AuthContextType extends AuthState {
   signIn: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
   clearError: () => void;
@@ -90,6 +93,62 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      setState((prev) => ({ ...prev, loading: true, error: null }));
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      
+      // Create profile if first time with 3-day trial
+      const userDoc = await getDoc(doc(db, 'users', result.user.uid));
+      if (!userDoc.exists()) {
+        const userEmail = result.user.email?.toLowerCase() || '';
+
+        // Check if there's a pending Hotmart activation
+        const pendingDoc = await getDoc(doc(db, 'pendingActivations', userEmail));
+        
+        if (pendingDoc.exists()) {
+          // User already paid via Hotmart — activate paid plan
+          const pending = pendingDoc.data();
+          await setDoc(doc(db, 'users', result.user.uid), {
+            name: result.user.displayName || pending.name || 'Usuário',
+            email: userEmail,
+            photoURL: result.user.photoURL,
+            createdAt: Timestamp.now(),
+            subscription: {
+              active: true,
+              plan: pending.plan || 'monthly',
+              hotmartTransaction: pending.transaction,
+              activatedAt: Timestamp.now(),
+            },
+          });
+          // Remove pending activation
+          await deleteDoc(doc(db, 'pendingActivations', userEmail));
+        } else {
+          // No payment — create with 3-day trial
+          const trialEnd = new Date();
+          trialEnd.setDate(trialEnd.getDate() + 3);
+
+          await setDoc(doc(db, 'users', result.user.uid), {
+            name: result.user.displayName || 'Usuário',
+            email: userEmail,
+            photoURL: result.user.photoURL,
+            createdAt: Timestamp.now(),
+            subscription: {
+              active: true,
+              plan: 'trial',
+              trialEndsAt: Timestamp.fromDate(trialEnd),
+            },
+          });
+        }
+      }
+    } catch (err) {
+      const message = getErrorMessage(err);
+      setState((prev) => ({ ...prev, loading: false, error: message }));
+      throw new Error(message);
+    }
+  };
+
   const signOut = async () => {
     try {
       await firebaseSignOut(auth);
@@ -113,7 +172,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ ...state, signIn, signOut, resetPassword, clearError }}
+      value={{ ...state, signIn, signInWithGoogle, signOut, resetPassword, clearError }}
     >
       {children}
     </AuthContext.Provider>

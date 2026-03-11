@@ -3,6 +3,7 @@ export interface UserSubscription {
   active: boolean;
   plan: string;
   expiresAt: Date | null;
+  trialEndsAt?: Date | null;
   asaasSubscriptionId: string;
 }
 

@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import styles from './landing.module.css';
 
+const CHECKOUT_URL = process.env.NEXT_PUBLIC_HOTMART_CHECKOUT_URL || '/login';
+
 export const metadata: Metadata = {
   title: 'FinanceApp - Controle suas finanças de verdade',
   description:
@@ -131,7 +133,7 @@ export default function LandingPage() {
             simule investimentos e receba alertas automáticos — tudo em um único app.
           </p>
           <div className={styles.heroCtas}>
-            <a href="#pricing" className={styles.ctaPrimary}>
+            <a href={CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className={styles.ctaPrimary}>
               Começar agora
               <ArrowRight size={18} />
             </a>
@@ -229,12 +231,14 @@ export default function LandingPage() {
                   </li>
                 ))}
               </ul>
-              <Link
-                href="/login"
+              <a
+                href={CHECKOUT_URL}
+                target="_blank"
+                rel="noopener noreferrer"
                 className={plan.highlight ? styles.planCtaPrimary : styles.planCtaSecondary}
               >
                 Assinar agora
-              </Link>
+              </a>
             </div>
           ))}
         </div>
@@ -244,10 +248,10 @@ export default function LandingPage() {
       <section className={styles.finalCta}>
         <h2>Pronto para organizar suas finanças?</h2>
         <p>Comece agora e tenha controle total do seu dinheiro.</p>
-        <Link href="/login" className={styles.ctaPrimary}>
+        <a href={CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className={styles.ctaPrimary}>
           Começar agora
           <ArrowRight size={18} />
-        </Link>
+        </a>
       </section>
 
       {/* Footer */}
