@@ -114,13 +114,12 @@ export function isValidInvoiceFile(file: File): { valid: boolean; error?: string
   const maxSize = 10 * 1024 * 1024; // 10MB
   const allowedTypes = [
     'application/pdf',
-    'image/jpeg',
-    'image/png',
-    'image/webp',
+    'text/csv',
+    'application/vnd.ms-excel',
   ];
 
   if (!allowedTypes.includes(file.type)) {
-    return { valid: false, error: 'Formato não suportado. Use PDF, JPG, PNG ou WebP.' };
+    return { valid: false, error: 'Formato não suportado. Use PDF ou CSV.' };
   }
 
   if (file.size > maxSize) {

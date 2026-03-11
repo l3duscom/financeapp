@@ -250,7 +250,7 @@ export default function InvoicesPage() {
               <p className={styles.dropText}>
                 Arraste a fatura aqui ou <span>clique para selecionar</span>
               </p>
-              <p className={styles.dropHint}>PDF, JPG, PNG ou WebP · Máx 10MB</p>
+              <p className={styles.dropHint}>PDF ou CSV · Máx 10MB</p>
             </>
           )}
         </div>
