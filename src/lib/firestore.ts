@@ -16,7 +16,7 @@ import {
   startAfter,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import type { Transaction, Category } from '@/types';
+import type { Transaction, Category, CreditCard } from '@/types';
 
 // ===== Transactions =====
 
@@ -238,6 +238,45 @@ export async function initializeDefaultAccounts(userId: string): Promise<void> {
     addDoc(collection(db, 'accounts'), { ...acc, userId })
   );
   await Promise.all(promises);
+}
+
+// ===== Credit Cards =====
+
+export async function getCreditCards(userId: string): Promise<CreditCard[]> {
+  const q = query(
+    collection(db, 'creditCards'),
+    where('userId', '==', userId),
+    orderBy('name', 'asc')
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+    createdAt: doc.data().createdAt?.toDate(),
+  })) as CreditCard[];
+}
+
+export async function addCreditCard(
+  userId: string,
+  data: Omit<CreditCard, 'id' | 'userId' | 'createdAt'>
+): Promise<string> {
+  const docRef = await addDoc(collection(db, 'creditCards'), {
+    ...data,
+    userId,
+    createdAt: Timestamp.now(),
+  });
+  return docRef.id;
+}
+
+export async function updateCreditCard(
+  cardId: string,
+  data: Partial<Omit<CreditCard, 'id' | 'userId' | 'createdAt'>>
+): Promise<void> {
+  await updateDoc(doc(db, 'creditCards', cardId), data);
+}
+
+export async function deleteCreditCard(cardId: string): Promise<void> {
+  await deleteDoc(doc(db, 'creditCards', cardId));
 }
 
 // ===== Helpers =====

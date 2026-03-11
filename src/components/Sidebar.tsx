@@ -28,6 +28,7 @@ const mainNavItems = [
   { href: '/goals', label: 'Metas', icon: Target },
   { href: '/projections', label: 'Simulador', icon: Calculator },
   { href: '/invoices', label: 'Faturas', icon: CreditCard },
+  { href: '/cards', label: 'Cartões', icon: Wallet },
   { href: '/reports', label: 'Relatórios', icon: BarChart3 },
   { href: '/alerts', label: 'Alertas', icon: Bell },
 ];

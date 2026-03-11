@@ -11,8 +11,9 @@ import {
   isValidInvoiceFile,
   type Invoice,
 } from '@/lib/storage';
-import { addTransaction } from '@/lib/firestore';
+import { addTransaction, getCreditCards } from '@/lib/firestore';
 import { parseCSV, readCSVFile, type ParsedTransaction } from '@/lib/csv-parser';
+import type { CreditCard as CreditCardType } from '@/types';
 import {
   Upload,
   FileText,
@@ -57,6 +58,9 @@ export default function InvoicesPage() {
   const [importing, setImporting] = useState(false);
   const [importCategory, setImportCategory] = useState('Fatura');
 
+  // Credit cards for selection
+  const [creditCards, setCreditCards] = useState<CreditCardType[]>([]);
+
   const loadInvoices = useCallback(async () => {
     if (!user) return;
     setLoading(true);
@@ -70,9 +74,20 @@ export default function InvoicesPage() {
     }
   }, [user]);
 
+  const loadCreditCards = useCallback(async () => {
+    if (!user) return;
+    try {
+      const data = await getCreditCards(user.uid);
+      setCreditCards(data);
+    } catch (err) {
+      console.error('Error loading credit cards:', err);
+    }
+  }, [user]);
+
   useEffect(() => {
     loadInvoices();
-  }, [loadInvoices]);
+    loadCreditCards();
+  }, [loadInvoices, loadCreditCards]);
 
   const handleUpload = async (file: File) => {
     if (!user) return;
@@ -275,13 +290,28 @@ export default function InvoicesPage() {
           <div className={styles.fieldRow}>
             <div className={styles.field}>
               <label className={styles.fieldLabel}>Cartão</label>
-              <input
-                type="text"
-                placeholder="Ex: Nubank, Itaú..."
-                className={styles.fieldInput}
-                value={cardName}
-                onChange={(e) => setCardName(e.target.value)}
-              />
+              {creditCards.length > 0 ? (
+                <select
+                  className={styles.fieldSelect}
+                  value={cardName}
+                  onChange={(e) => setCardName(e.target.value)}
+                >
+                  <option value="">Selecione o cartão...</option>
+                  {creditCards.map((cc) => (
+                    <option key={cc.id} value={cc.name}>
+                      {cc.name} (final {cc.lastDigits})
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  placeholder="Ex: Nubank, Itaú..."
+                  className={styles.fieldInput}
+                  value={cardName}
+                  onChange={(e) => setCardName(e.target.value)}
+                />
+              )}
             </div>
             <div className={styles.field}>
               <label className={styles.fieldLabel}>Mês</label>

@@ -108,6 +108,22 @@ export interface AsaasCustomer {
   cpfCnpj?: string;
 }
 
+// ===== Credit Card Types =====
+export type CardBrand = 'visa' | 'mastercard' | 'elo' | 'amex' | 'hipercard' | 'other';
+
+export interface CreditCard {
+  id: string;
+  userId: string;
+  name: string;
+  lastDigits: string;
+  brand: CardBrand;
+  color: string;
+  limit: number;
+  closingDay: number;
+  dueDay: number;
+  createdAt: Date;
+}
+
 // ===== Dashboard Types =====
 export interface DashboardSummary {
   totalBalance: number;
