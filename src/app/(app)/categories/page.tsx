@@ -12,6 +12,7 @@ import {
 import { getBudgets, setBudget, type MonthlyBudget } from '@/lib/planner';
 import { getTransactionEmoji } from '@/lib/emoji';
 import TransactionIcon from '@/components/TransactionIcon';
+import CurrencyInput, { parseCurrency } from '@/components/CurrencyInput';
 import type { Category, Transaction, TransactionType } from '@/types';
 import {
   Tag,
@@ -219,8 +220,8 @@ export default function CategoriesPage() {
     if (!user || !selectedCat) return;
     setSavingLimit(true);
     try {
-      const val = parseFloat(limitValue.replace(/\./g, '').replace(',', '.'));
-      await setBudget(user.uid, selectedCat.name, isNaN(val) ? 0 : val, now.getMonth(), now.getFullYear());
+      const val = parseCurrency(limitValue);
+      await setBudget(user.uid, selectedCat.name, val, now.getMonth(), now.getFullYear());
       setSuccess('Limite atualizado!');
       await loadCatDetail(selectedCat);
     } catch {
@@ -428,12 +429,10 @@ export default function CategoriesPage() {
               <div className={styles.formField}>
                 <label className={styles.formLabel}>Adicionar / alterar limite</label>
                 <div className={styles.limitRow}>
-                  <input
+                  <CurrencyInput
                     className={styles.formInput}
-                    type="number"
-                    placeholder="Ex: 500"
                     value={limitValue}
-                    onChange={(e) => setLimitValue(e.target.value)}
+                    onChange={(masked) => setLimitValue(masked)}
                     style={{ flex: 1 }}
                   />
                   <button

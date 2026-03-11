@@ -12,6 +12,7 @@ import {
 } from '@/lib/firestore';
 import { getTransactionEmoji } from '@/lib/emoji';
 import TransactionIcon from '@/components/TransactionIcon';
+import CurrencyInput, { parseCurrency } from '@/components/CurrencyInput';
 import type { Installment, Category, CreditCard, Transaction } from '@/types';
 import {
   Layers,
@@ -294,7 +295,7 @@ export default function InstallmentsPage() {
     }
     setSaving(true);
     try {
-      const totalAmount = parseFloat(formTotal.replace(/\./g, '').replace(',', '.'));
+      const totalAmount = parseCurrency(formTotal);
       const totalInst = parseInt(formInstallments);
       if (isNaN(totalAmount) || isNaN(totalInst) || totalInst < 1) {
         setError('Valores inválidos');
@@ -574,11 +575,10 @@ export default function InstallmentsPage() {
               <div className={styles.formRow}>
                 <div className={styles.formField}>
                   <label className={styles.formLabel}>Valor Total</label>
-                  <input
+                  <CurrencyInput
                     className={styles.formInput}
-                    placeholder="Ex: 4596.59"
                     value={formTotal}
-                    onChange={(e) => setFormTotal(e.target.value)}
+                    onChange={(masked) => setFormTotal(masked)}
                   />
                 </div>
                 <div className={styles.formField}>
@@ -633,26 +633,18 @@ export default function InstallmentsPage() {
                 </select>
               </div>
 
-              {formTotal && formInstallments && parseInt(formInstallments) > 0 && (
+              {formTotal && formInstallments && parseInt(formInstallments) > 0 && parseCurrency(formTotal) > 0 && (
                 <div className={styles.summaryBox} style={{ marginTop: 0 }}>
                   <span className={styles.summaryBoxLabel}>Valor por parcela</span>
                   <span className={styles.summaryBoxValue}>
                     {formatCurrency(
-                      Math.round(
-                        (parseFloat(formTotal.replace(/\./g, '').replace(',', '.')) /
-                          parseInt(formInstallments)) *
-                          100
-                      ) / 100
+                      Math.round((parseCurrency(formTotal) / parseInt(formInstallments)) * 100) / 100
                     )}
                   </span>
                   <span className={styles.summaryBoxHint}>
                     {formInstallments}x de{' '}
                     {formatCurrency(
-                      Math.round(
-                        (parseFloat(formTotal.replace(/\./g, '').replace(',', '.')) /
-                          parseInt(formInstallments)) *
-                          100
-                      ) / 100
+                      Math.round((parseCurrency(formTotal) / parseInt(formInstallments)) * 100) / 100
                     )}
                   </span>
                 </div>

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import CurrencyInput, { parseCurrency } from '@/components/CurrencyInput';
 import styles from './budget.module.css';
 
 export default function BudgetPage() {
@@ -55,8 +56,8 @@ export default function BudgetPage() {
 
   const handleSetBudget = async (category: string) => {
     if (!user) return;
-    const value = parseFloat(editValue);
-    if (isNaN(value) || value < 0) return;
+    const value = parseCurrency(editValue);
+    if (value < 0) return;
 
     await setBudget(user.uid, category, value, currentMonth, currentYear);
     setEditingId(null);
@@ -185,11 +186,10 @@ export default function BudgetPage() {
                 <div className={styles.itemActions}>
                   {editingId === row.category.id ? (
                     <div className={styles.editForm}>
-                      <input
-                        type="number"
-                        placeholder="Limite"
+                      <CurrencyInput
+                        placeholder="R$ 0,00"
                         value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
+                        onChange={(masked) => setEditValue(masked)}
                         className={styles.editInput}
                         autoFocus
                       />

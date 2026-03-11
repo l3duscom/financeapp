@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import CurrencyInput, { parseCurrency } from '@/components/CurrencyInput';
 import styles from './goals.module.css';
 
 export default function GoalsPage() {
@@ -36,8 +37,8 @@ export default function GoalsPage() {
   const [depositAmount, setDepositAmount] = useState('');
   const [newGoal, setNewGoal] = useState({
     name: '',
-    targetAmount: 0,
-    currentAmount: 0,
+    targetAmount: '',
+    currentAmount: '',
     category: 'other' as FinancialGoal['category'],
     deadline: '',
   });
@@ -60,25 +61,27 @@ export default function GoalsPage() {
   }, [loadGoals]);
 
   const handleAddGoal = async () => {
-    if (!user || !newGoal.name || !newGoal.targetAmount || !newGoal.deadline) return;
+    const targetNum = parseCurrency(newGoal.targetAmount);
+    const currentNum = parseCurrency(newGoal.currentAmount);
+    if (!user || !newGoal.name || !targetNum || !newGoal.deadline) return;
 
     const cat = GOAL_CATEGORIES.find((c) => c.value === newGoal.category);
     await addGoal(user.uid, {
       name: newGoal.name,
-      targetAmount: newGoal.targetAmount,
-      currentAmount: newGoal.currentAmount,
+      targetAmount: targetNum,
+      currentAmount: currentNum,
       deadline: new Date(newGoal.deadline),
       icon: cat?.icon || 'target',
       color: cat?.color || '#64748b',
       category: newGoal.category,
     });
-    setNewGoal({ name: '', targetAmount: 0, currentAmount: 0, category: 'other', deadline: '' });
+    setNewGoal({ name: '', targetAmount: '', currentAmount: '', category: 'other', deadline: '' });
     setShowAdd(false);
     await loadGoals();
   };
 
   const handleDeposit = async (goal: FinancialGoal) => {
-    const amount = parseFloat(depositAmount);
+    const amount = parseCurrency(depositAmount);
     if (!amount || amount <= 0) return;
     await addToGoal(goal.id, amount, goal.currentAmount);
     setDepositGoalId(null);
@@ -155,20 +158,16 @@ export default function GoalsPage() {
             </div>
             <div className={styles.field}>
               <label>Valor objetivo (R$)</label>
-              <input
-                type="number"
-                placeholder="10000"
-                value={newGoal.targetAmount || ''}
-                onChange={(e) => setNewGoal((p) => ({ ...p, targetAmount: Number(e.target.value) }))}
+              <CurrencyInput
+                value={newGoal.targetAmount}
+                onChange={(masked) => setNewGoal((p) => ({ ...p, targetAmount: masked }))}
               />
             </div>
             <div className={styles.field}>
               <label>Já guardado (R$)</label>
-              <input
-                type="number"
-                placeholder="0"
-                value={newGoal.currentAmount || ''}
-                onChange={(e) => setNewGoal((p) => ({ ...p, currentAmount: Number(e.target.value) }))}
+              <CurrencyInput
+                value={newGoal.currentAmount}
+                onChange={(masked) => setNewGoal((p) => ({ ...p, currentAmount: masked }))}
               />
             </div>
             <div className={styles.field}>
@@ -261,11 +260,10 @@ export default function GoalsPage() {
                       <div className={styles.depositForm}>
                         <div className={styles.depositInput}>
                           <DollarSign size={16} />
-                          <input
-                            type="number"
-                            placeholder="Valor a depositar"
+                          <CurrencyInput
+                            placeholder="R$ 0,00"
                             value={depositAmount}
-                            onChange={(e) => setDepositAmount(e.target.value)}
+                            onChange={(masked) => setDepositAmount(masked)}
                             autoFocus
                           />
                         </div>

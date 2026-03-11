@@ -59,6 +59,8 @@
   height: 40px;
   border-radius: var(--radius-md);
   flex-shrink: 0;
+  background: var(--color-bg-glass);
+  font-size: 22px;
 }
 
 .info {

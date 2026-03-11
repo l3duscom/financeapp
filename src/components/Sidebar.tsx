@@ -30,7 +30,6 @@ const mainNavItems = [
   { href: '/budget', label: 'Orçamento', icon: PieChart },
   { href: '/goals', label: 'Metas', icon: Target },
   { href: '/projections', label: 'Simulador', icon: Calculator },
-  { href: '/invoices', label: 'Faturas', icon: CreditCard },
   { href: '/cards', label: 'Cartões', icon: Wallet },
   { href: '/installments', label: 'Parcelas', icon: Layers },
   { href: '/reports', label: 'Relatórios', icon: BarChart3 },

@@ -21,6 +21,7 @@ import {
   type Invoice,
 } from '@/lib/storage';
 import TransactionIcon from '@/components/TransactionIcon';
+import CurrencyInput, { parseCurrency } from '@/components/CurrencyInput';
 import type { CreditCard, CardBrand, Transaction, Category } from '@/types';
 import {
   CreditCard as CreditCardIcon,
@@ -56,6 +57,116 @@ const BRAND_LABELS: Record<CardBrand, string> = {
 const CARD_COLORS = [
   '#e63946', '#7b2cbf', '#f97316', '#2563eb', '#059669',
   '#1a1a2e', '#e11d48', '#0891b2', '#ca8a04', '#6d28d9',
+];
+
+interface CardTemplate {
+  name: string;
+  brand: CardBrand;
+  color: string;
+}
+
+const BRAZILIAN_CARDS: CardTemplate[] = [
+  // Nubank
+  { name: 'Nubank', brand: 'mastercard', color: '#7b2cbf' },
+  { name: 'Nubank Ultravioleta', brand: 'mastercard', color: '#1a1a2e' },
+  // Itaú
+  { name: 'Itaú Personnalité', brand: 'visa', color: '#f97316' },
+  { name: 'Itaú Uniclass', brand: 'visa', color: '#1a1a2e' },
+  { name: 'Itaú Click', brand: 'visa', color: '#f97316' },
+  { name: 'Itaú Azul', brand: 'visa', color: '#2563eb' },
+  { name: 'Itaú Platinum', brand: 'visa', color: '#64748b' },
+  { name: 'Itaú Black', brand: 'visa', color: '#1a1a2e' },
+  { name: 'Itaú Pão de Açúcar', brand: 'visa', color: '#e63946' },
+  // Bradesco
+  { name: 'Bradesco Aeternum', brand: 'visa', color: '#e11d48' },
+  { name: 'Bradesco Elo', brand: 'elo', color: '#e11d48' },
+  { name: 'Bradesco Platinum', brand: 'visa', color: '#64748b' },
+  { name: 'Bradesco Gold', brand: 'visa', color: '#ca8a04' },
+  { name: 'Bradesco Prime', brand: 'visa', color: '#e11d48' },
+  { name: 'Bradesco Neo', brand: 'visa', color: '#2563eb' },
+  // Santander
+  { name: 'Santander Free', brand: 'mastercard', color: '#e63946' },
+  { name: 'Santander Elite', brand: 'mastercard', color: '#e63946' },
+  { name: 'Santander Unlimited', brand: 'visa', color: '#1a1a2e' },
+  { name: 'Santander SX', brand: 'mastercard', color: '#e63946' },
+  { name: 'Santander Unique', brand: 'visa', color: '#e63946' },
+  // Banco do Brasil
+  { name: 'BB Ourocard', brand: 'visa', color: '#ca8a04' },
+  { name: 'BB Ourocard Platinum', brand: 'visa', color: '#64748b' },
+  { name: 'BB Estilo', brand: 'visa', color: '#ca8a04' },
+  { name: 'BB Altus', brand: 'visa', color: '#1a1a2e' },
+  { name: 'BB Elo', brand: 'elo', color: '#ca8a04' },
+  // Caixa
+  { name: 'Caixa Elo', brand: 'elo', color: '#0891b2' },
+  { name: 'Caixa Visa', brand: 'visa', color: '#0891b2' },
+  { name: 'Caixa Mastercard', brand: 'mastercard', color: '#0891b2' },
+  // Inter
+  { name: 'Inter Black', brand: 'mastercard', color: '#1a1a2e' },
+  { name: 'Inter Gold', brand: 'mastercard', color: '#ca8a04' },
+  { name: 'Inter Platinum', brand: 'mastercard', color: '#64748b' },
+  { name: 'Inter', brand: 'mastercard', color: '#f97316' },
+  // C6 Bank
+  { name: 'C6 Bank Carbon', brand: 'mastercard', color: '#1a1a2e' },
+  { name: 'C6 Bank', brand: 'mastercard', color: '#1a1a2e' },
+  // XP
+  { name: 'XP Visa Infinite', brand: 'visa', color: '#1a1a2e' },
+  { name: 'XP Visa', brand: 'visa', color: '#1a1a2e' },
+  // BTG
+  { name: 'BTG Pactual', brand: 'mastercard', color: '#1a1a2e' },
+  // PicPay
+  { name: 'PicPay', brand: 'mastercard', color: '#059669' },
+  // PagBank
+  { name: 'PagBank', brand: 'visa', color: '#059669' },
+  // Mercado Pago
+  { name: 'Mercado Pago', brand: 'visa', color: '#2563eb' },
+  // Original
+  { name: 'Banco Original', brand: 'mastercard', color: '#059669' },
+  // Pan
+  { name: 'Banco Pan', brand: 'mastercard', color: '#2563eb' },
+  // Neon
+  { name: 'Neon', brand: 'visa', color: '#0891b2' },
+  // Next
+  { name: 'Next', brand: 'visa', color: '#059669' },
+  // Digio
+  { name: 'Digio', brand: 'visa', color: '#2563eb' },
+  // Will Bank
+  { name: 'Will Bank', brand: 'mastercard', color: '#ca8a04' },
+  // Credicard
+  { name: 'Credicard ON', brand: 'mastercard', color: '#059669' },
+  { name: 'Credicard Zero', brand: 'mastercard', color: '#059669' },
+  { name: 'Credicard Platinum', brand: 'mastercard', color: '#64748b' },
+  // Porto Seguro
+  { name: 'Porto Seguro Visa', brand: 'visa', color: '#2563eb' },
+  // Sicredi
+  { name: 'Sicredi', brand: 'visa', color: '#059669' },
+  // Sicoob
+  { name: 'Sicoob', brand: 'visa', color: '#059669' },
+  // Banrisul
+  { name: 'Banrisul', brand: 'mastercard', color: '#2563eb' },
+  // BMG
+  { name: 'BMG', brand: 'mastercard', color: '#f97316' },
+  // Riachuelo
+  { name: 'Riachuelo', brand: 'mastercard', color: '#1a1a2e' },
+  // Renner
+  { name: 'Renner', brand: 'mastercard', color: '#e63946' },
+  // Casas Bahia
+  { name: 'Casas Bahia', brand: 'mastercard', color: '#2563eb' },
+  // Magazine Luiza
+  { name: 'Magalu', brand: 'mastercard', color: '#2563eb' },
+  // Pernambucanas
+  { name: 'Pernambucanas', brand: 'visa', color: '#e63946' },
+  // Samsung
+  { name: 'Samsung Itaucard', brand: 'visa', color: '#1a1a2e' },
+  // Latam
+  { name: 'Latam Pass Itaucard', brand: 'visa', color: '#2563eb' },
+  // Smiles
+  { name: 'Smiles GOL', brand: 'visa', color: '#f97316' },
+  // Azul
+  { name: 'Azul Itaucard', brand: 'visa', color: '#2563eb' },
+  // Amazon
+  { name: 'Amazon Bradesco', brand: 'visa', color: '#1a1a2e' },
+  // Rappi
+  { name: 'RappiCard', brand: 'visa', color: '#f97316' },
 ];
 
 const MONTHS = [
@@ -137,6 +248,23 @@ export default function CardsPage() {
   const [formLimit, setFormLimit] = useState('');
   const [formClosing, setFormClosing] = useState('27');
   const [formDue, setFormDue] = useState('15');
+  const [cardSearch, setCardSearch] = useState('');
+  const [showCardDropdown, setShowCardDropdown] = useState(false);
+  const cardSearchRef = useRef<HTMLDivElement>(null);
+
+  const filteredCardTemplates = useMemo(() => {
+    if (!cardSearch.trim()) return BRAZILIAN_CARDS;
+    const q = cardSearch.toLowerCase();
+    return BRAZILIAN_CARDS.filter((c) => c.name.toLowerCase().includes(q));
+  }, [cardSearch]);
+
+  const selectCardTemplate = (tpl: CardTemplate) => {
+    setFormName(tpl.name);
+    setFormBrand(tpl.brand);
+    setFormColor(tpl.color);
+    setCardSearch(tpl.name);
+    setShowCardDropdown(false);
+  };
 
   const loadCards = useCallback(async () => {
     if (!user) return;
@@ -152,6 +280,16 @@ export default function CardsPage() {
   }, [user]);
 
   useEffect(() => { loadCards(); }, [loadCards]);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (cardSearchRef.current && !cardSearchRef.current.contains(e.target as Node)) {
+        setShowCardDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const loadCardTransactions = useCallback(async (card: CreditCard) => {
     if (!user) return;
@@ -189,6 +327,7 @@ export default function CardsPage() {
     setFormName(''); setFormDigits(''); setFormBrand('visa');
     setFormColor(CARD_COLORS[0]); setFormLimit('');
     setFormClosing('27'); setFormDue('15'); setError('');
+    setCardSearch(''); setShowCardDropdown(false);
   };
 
   const handleAddCard = async () => {
@@ -196,8 +335,8 @@ export default function CardsPage() {
     if (!formName.trim()) { setError('Informe o nome do cartão'); return; }
     if (!formDigits.trim() || formDigits.length !== 4) { setError('Informe os 4 últimos dígitos'); return; }
     if (!formLimit.trim()) { setError('Informe o limite'); return; }
-    const limitNum = parseFloat(formLimit.replace(/[^\d,.-]/g, '').replace(',', '.'));
-    if (isNaN(limitNum) || limitNum <= 0) { setError('Limite inválido'); return; }
+    const limitNum = parseCurrency(formLimit);
+    if (limitNum <= 0) { setError('Limite inválido'); return; }
 
     setSaving(true); setError('');
     try {
@@ -235,8 +374,8 @@ export default function CardsPage() {
     if (!user || !selectedCard) return;
     if (!expDesc.trim()) { setError('Informe a descrição'); return; }
     if (!expAmount.trim()) { setError('Informe o valor'); return; }
-    const amount = parseFloat(expAmount.replace(/[^\d,.-]/g, '').replace(',', '.'));
-    if (isNaN(amount) || amount <= 0) { setError('Valor inválido'); return; }
+    const amount = parseCurrency(expAmount);
+    if (amount <= 0) { setError('Valor inválido'); return; }
 
     setSavingExpense(true); setError('');
     try {
@@ -505,7 +644,7 @@ export default function CardsPage() {
                 <div className={styles.formRow}>
                   <div className={styles.formField}>
                     <label className={styles.formLabel}>Valor</label>
-                    <input type="text" className={styles.formInput} placeholder="R$ 0,00" value={expAmount} onChange={(e) => setExpAmount(e.target.value)} />
+                    <CurrencyInput className={styles.formInput} value={expAmount} onChange={(masked) => setExpAmount(masked)} />
                   </div>
                   <div className={styles.formField}>
                     <label className={styles.formLabel}>Data</label>
@@ -646,12 +785,59 @@ export default function CardsPage() {
             </div>
             <div className={styles.modalBody}>
               {error && <div className={styles.inlineError}><AlertCircle size={14} /> {error}</div>}
-              <div className={styles.formField}><label className={styles.formLabel}>Nome do Cartão</label><input type="text" className={styles.formInput} placeholder="Ex: Nubank, Itaú Azul..." value={formName} onChange={(e) => setFormName(e.target.value)} /></div>
+              <div className={styles.formField} ref={cardSearchRef}>
+                <label className={styles.formLabel}>Nome do Cartão</label>
+                <div className={styles.comboboxWrapper}>
+                  <input
+                    type="text"
+                    className={styles.formInput}
+                    placeholder="Pesquisar cartão... Ex: Nubank, Itaú..."
+                    value={cardSearch}
+                    onChange={(e) => {
+                      setCardSearch(e.target.value);
+                      setFormName(e.target.value);
+                      setShowCardDropdown(true);
+                    }}
+                    onFocus={() => setShowCardDropdown(true)}
+                  />
+                  {showCardDropdown && (
+                    <div className={styles.comboboxDropdown}>
+                      {cardSearch.trim() && (
+                        <button
+                          type="button"
+                          className={`${styles.comboboxItem} ${styles.comboboxCustom}`}
+                          onClick={() => {
+                            setFormName(cardSearch.trim());
+                            setShowCardDropdown(false);
+                          }}
+                        >
+                          <Plus size={14} />
+                          <span className={styles.comboboxName}>
+                            Adicionar &quot;{cardSearch.trim()}&quot; manualmente
+                          </span>
+                        </button>
+                      )}
+                      {filteredCardTemplates.map((tpl, i) => (
+                        <button
+                          key={`${tpl.name}-${i}`}
+                          type="button"
+                          className={styles.comboboxItem}
+                          onClick={() => selectCardTemplate(tpl)}
+                        >
+                          <span className={styles.comboboxDot} style={{ background: tpl.color }} />
+                          <span className={styles.comboboxName}>{tpl.name}</span>
+                          <span className={styles.comboboxBrand}>{BRAND_LABELS[tpl.brand]}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
               <div className={styles.formRow}>
                 <div className={styles.formField}><label className={styles.formLabel}>Últimos 4 dígitos</label><input type="text" className={styles.formInput} placeholder="0000" maxLength={4} value={formDigits} onChange={(e) => setFormDigits(e.target.value.replace(/\D/g, '').slice(0, 4))} /></div>
                 <div className={styles.formField}><label className={styles.formLabel}>Bandeira</label><select className={styles.formSelect} value={formBrand} onChange={(e) => setFormBrand(e.target.value as CardBrand)}>{Object.entries(BRAND_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></div>
               </div>
-              <div className={styles.formField}><label className={styles.formLabel}>Limite</label><input type="text" className={styles.formInput} placeholder="R$ 5.000,00" value={formLimit} onChange={(e) => setFormLimit(e.target.value)} /></div>
+              <div className={styles.formField}><label className={styles.formLabel}>Limite</label><CurrencyInput className={styles.formInput} value={formLimit} onChange={(masked) => setFormLimit(masked)} /></div>
               <div className={styles.formRow}>
                 <div className={styles.formField}><label className={styles.formLabel}>Dia do Fechamento</label><select className={styles.formSelect} value={formClosing} onChange={(e) => setFormClosing(e.target.value)}>{dayOptions.map((d) => <option key={d} value={d}>{d}</option>)}</select></div>
                 <div className={styles.formField}><label className={styles.formLabel}>Dia do Vencimento</label><select className={styles.formSelect} value={formDue} onChange={(e) => setFormDue(e.target.value)}>{dayOptions.map((d) => <option key={d} value={d}>{d}</option>)}</select></div>

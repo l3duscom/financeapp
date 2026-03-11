@@ -473,6 +473,51 @@
 .importTxDate { font-size: var(--font-size-xs); color: var(--color-text-tertiary); }
 .importTxAmount { font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); flex-shrink: 0; }
 
+/* ===== Card Combobox ===== */
+.comboboxWrapper { position: relative; }
+.comboboxDropdown {
+  position: absolute; top: 100%; left: 0; right: 0;
+  margin-top: 4px; z-index: 50;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  max-height: 240px; overflow-y: auto;
+  box-shadow: var(--shadow-lg);
+  animation: fadeIn var(--transition-fast) ease-out;
+}
+.comboboxItem {
+  display: flex; align-items: center; gap: var(--space-2);
+  width: 100%; padding: var(--space-2) var(--space-3);
+  font-size: var(--font-size-sm); text-align: left;
+  cursor: pointer; transition: background var(--transition-fast);
+  border-bottom: 1px solid var(--color-border);
+}
+.comboboxItem:last-child { border-bottom: none; }
+.comboboxItem:hover { background: var(--color-bg-glass); }
+.comboboxDot {
+  width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+}
+.comboboxName {
+  flex: 1; font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+.comboboxBrand {
+  font-size: var(--font-size-xs); color: var(--color-text-muted);
+  font-weight: var(--font-weight-medium);
+}
+.comboboxEmpty {
+  padding: var(--space-3); text-align: center;
+  font-size: var(--font-size-xs); color: var(--color-text-muted);
+}
+.comboboxCustom {
+  background: var(--color-bg-glass);
+  color: var(--color-accent-primary);
+}
+.comboboxCustom .comboboxName {
+  color: var(--color-accent-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
 /* ===== Animations ===== */
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }

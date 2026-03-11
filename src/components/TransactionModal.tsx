@@ -101,10 +101,17 @@ export default function TransactionModal({
     }
   };
 
-  const formatCurrencyInput = (value: string) => {
-    const num = value.replace(/\D/g, '');
-    const formatted = (parseInt(num || '0', 10) / 100).toFixed(2);
-    return parseFloat(formatted);
+  const formatCurrencyInput = (value: string): number => {
+    const digits = value.replace(/\D/g, '');
+    if (!digits) return 0;
+    return parseInt(digits, 10) / 100;
+  };
+
+  const displayCurrency = (amount: number): string => {
+    if (amount <= 0) return '';
+    const [intPart, decPart] = amount.toFixed(2).split('.');
+    const formattedInt = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    return `${formattedInt},${decPart}`;
   };
 
   if (!isOpen) return null;
@@ -151,7 +158,7 @@ export default function TransactionModal({
               inputMode="decimal"
               placeholder="0,00"
               className={styles.amountInput}
-              value={formData.amount > 0 ? formData.amount.toFixed(2).replace('.', ',') : ''}
+              value={displayCurrency(formData.amount)}
               onChange={(e) => {
                 const val = formatCurrencyInput(e.target.value);
                 setFormData((p) => ({ ...p, amount: val }));

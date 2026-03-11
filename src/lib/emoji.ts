@@ -4,11 +4,11 @@ const BRAND_LOGOS: [RegExp, string][] = [
   [/netflix/i, 'netflix.com'],
   [/spotify/i, 'spotify.com'],
   [/disney\s*\+|disney\s*plus/i, 'disneyplus.com'],
-  [/hbo\s*max|hbmax/i, 'hbomax.com'],
+  [/hbo\s*max|hbmax|hboma|helphbo/i, 'hbomax.com'],
   [/youtube|yt\s*premium/i, 'youtube.com'],
   [/prime\s*video/i, 'primevideo.com'],
   [/twitch/i, 'twitch.tv'],
-  [/apple\s*(tv|music)/i, 'apple.com'],
+  [/apple|applecombill/i, 'apple.com'],
   [/deezer/i, 'deezer.com'],
   [/tidal/i, 'tidal.com'],
   [/globo\s*play|globoplay/i, 'globoplay.globo.com'],
@@ -19,7 +19,7 @@ const BRAND_LOGOS: [RegExp, string][] = [
   [/xbox/i, 'xbox.com'],
   [/nintendo/i, 'nintendo.com'],
   // Social & tech
-  [/facebook|meta\s*ads/i, 'facebook.com'],
+  [/facebook|facebk|meta\s*ads/i, 'facebook.com'],
   [/instagram/i, 'instagram.com'],
   [/whatsapp/i, 'whatsapp.com'],
   [/twitter|x\.com/i, 'x.com'],
@@ -100,11 +100,11 @@ const EMOJI_MAP: [RegExp, string][] = [
   [/netflix/i, '🍿'],
   [/spotify/i, '🎵'],
   [/disney/i, '🏰'],
-  [/hbo|max/i, '🎬'],
+  [/hbo|hboma|helphbo/i, '🎬'],
   [/youtube|yt/i, '📺'],
   [/prime\s*video|amazon\s*prime/i, '📦'],
   [/twitch/i, '🎮'],
-  [/apple\s*(tv|music)/i, '🍎'],
+  [/apple|applecombill/i, '🍎'],
   [/deezer|tidal/i, '🎧'],
   [/steam|playstation|xbox|game/i, '🕹️'],
   [/cinema/i, '🎞️'],
@@ -209,6 +209,16 @@ export function getTransactionEmoji(description: string, category: string): stri
 }
 
 export function getTransactionBrandLogo(description: string): string | null {
+  const text = description.toLowerCase();
+  for (const [pattern, domain] of BRAND_LOGOS) {
+    if (pattern.test(text)) {
+      return `https://logo.clearbit.com/${domain}`;
+    }
+  }
+  return null;
+}
+
+export function getTransactionBrandLogoFallback(description: string): string | null {
   const text = description.toLowerCase();
   for (const [pattern, domain] of BRAND_LOGOS) {
     if (pattern.test(text)) {

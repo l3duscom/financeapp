@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { getTransactionEmoji, getTransactionBrandLogo } from '@/lib/emoji';
+import { getTransactionEmoji, getTransactionBrandLogo, getTransactionBrandLogoFallback } from '@/lib/emoji';
 
 interface TransactionIconProps {
   description: string;
@@ -10,12 +10,19 @@ interface TransactionIconProps {
 }
 
 export default function TransactionIcon({ description, category, size = 20 }: TransactionIconProps) {
-  const [imgError, setImgError] = useState(false);
-  const [imgLoaded, setImgLoaded] = useState(false);
+  const [stage, setStage] = useState<'logo' | 'fallback' | 'emoji'>('logo');
+  const [loaded, setLoaded] = useState(false);
+
   const logo = getTransactionBrandLogo(description);
+  const fallback = getTransactionBrandLogoFallback(description);
   const emoji = getTransactionEmoji(description, category);
 
-  if (logo && !imgError) {
+  const currentSrc =
+    stage === 'logo' ? logo :
+    stage === 'fallback' ? fallback :
+    null;
+
+  if (currentSrc) {
     return (
       <span
         style={{
@@ -29,21 +36,27 @@ export default function TransactionIcon({ description, category, size = 20 }: Tr
           lineHeight: 1,
         }}
       >
-        {!imgLoaded && emoji}
+        {!loaded && emoji}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={logo}
+          src={currentSrc}
           alt=""
           width={size}
           height={size}
           referrerPolicy="no-referrer"
-          crossOrigin="anonymous"
-          onLoad={() => setImgLoaded(true)}
-          onError={() => setImgError(true)}
+          onLoad={() => setLoaded(true)}
+          onError={() => {
+            setLoaded(false);
+            if (stage === 'logo' && fallback) {
+              setStage('fallback');
+            } else {
+              setStage('emoji');
+            }
+          }}
           style={{
             borderRadius: 4,
             objectFit: 'contain',
-            display: imgLoaded ? 'block' : 'none',
+            display: loaded ? 'block' : 'none',
           }}
         />
       </span>

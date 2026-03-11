@@ -18,6 +18,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from 'recharts';
+import CurrencyInput, { parseCurrency } from '@/components/CurrencyInput';
 import styles from './projections.module.css';
 
 interface ProjectionData {
@@ -29,8 +30,10 @@ interface ProjectionData {
 }
 
 export default function ProjectionsPage() {
-  const [initialAmount, setInitialAmount] = useState(1000);
-  const [monthlyContribution, setMonthlyContribution] = useState(500);
+  const [initialAmountStr, setInitialAmountStr] = useState('R$ 1.000,00');
+  const [monthlyContributionStr, setMonthlyContributionStr] = useState('R$ 500,00');
+  const initialAmount = parseCurrency(initialAmountStr);
+  const monthlyContribution = parseCurrency(monthlyContributionStr);
   const [annualRate, setAnnualRate] = useState(12);
   const [periodMonths, setPeriodMonths] = useState(60);
 
@@ -104,11 +107,9 @@ export default function ProjectionsPage() {
               <DollarSign size={14} />
               Aporte inicial
             </label>
-            <input
-              type="number"
-              value={initialAmount}
-              onChange={(e) => setInitialAmount(Number(e.target.value))}
-              min={0}
+            <CurrencyInput
+              value={initialAmountStr}
+              onChange={(masked) => setInitialAmountStr(masked)}
             />
           </div>
           <div className={styles.field}>
@@ -116,11 +117,9 @@ export default function ProjectionsPage() {
               <TrendingUp size={14} />
               Aporte mensal
             </label>
-            <input
-              type="number"
-              value={monthlyContribution}
-              onChange={(e) => setMonthlyContribution(Number(e.target.value))}
-              min={0}
+            <CurrencyInput
+              value={monthlyContributionStr}
+              onChange={(masked) => setMonthlyContributionStr(masked)}
             />
           </div>
           <div className={styles.field}>
