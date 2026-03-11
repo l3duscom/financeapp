@@ -51,6 +51,16 @@ const DEACTIVATION_EVENTS = [
   'SUBSCRIPTION_CANCELLATION',
 ];
 
+/**
+ * Normaliza o nome do plano vindo da Hotmart para o padrão do app
+ */
+function normalizePlan(rawPlan?: string): string {
+  const p = (rawPlan || '').toLowerCase().trim();
+  if (p.includes('anual') || p.includes('annual') || p.includes('ano')) return 'annual';
+  if (p.includes('mensal') || p.includes('monthly') || p.includes('mês') || p.includes('mes')) return 'monthly';
+  return 'monthly'; // fallback
+}
+
 export async function POST(request: Request) {
   try {
     // Validate Hottok
@@ -94,7 +104,7 @@ export async function POST(request: Request) {
         await getAdminDb().collection('pendingActivations').doc(buyerEmail).set({
           email: buyerEmail,
           name: data.buyer.name,
-          plan: data.subscription?.plan?.name || 'monthly',
+          plan: normalizePlan(data.subscription?.plan?.name),
           transaction: data.purchase.transaction,
           activatedAt: new Date(),
           event,

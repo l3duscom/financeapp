@@ -99,7 +99,16 @@ export default function Sidebar() {
         <div className={styles.userInfo}>
           <span className={styles.userName}>{profile?.name || 'Usuário'}</span>
           <span className={styles.userPlan}>
-            {profile?.subscription?.active ? 'Premium' : 'Inativo'}
+            {(() => {
+              const plan = profile?.subscription?.plan;
+              const active = profile?.subscription?.active;
+              if (!active) return 'Inativo';
+              if (plan === 'trial') return 'Trial';
+              if (plan === 'annual' || plan === 'anual') return 'Anual';
+              if (plan === 'monthly' || plan === 'mensal') return 'Mensal';
+              if (plan === 'expired') return 'Expirado';
+              return plan || 'Inativo';
+            })()}
           </span>
         </div>
       </div>

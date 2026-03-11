@@ -105,7 +105,16 @@ export default function ProfilePage() {
           <div className={styles.userDetail}>
             <Shield size={14} />
             <span className={styles.planBadge}>
-              {profile?.subscription?.active ? 'Premium ativo' : 'Inativo'}
+              {(() => {
+                const plan = profile?.subscription?.plan;
+                const active = profile?.subscription?.active;
+                if (!active) return 'Inativo';
+                if (plan === 'trial') return 'Trial (3 dias)';
+                if (plan === 'annual' || plan === 'anual') return 'Plano Anual';
+                if (plan === 'monthly' || plan === 'mensal') return 'Plano Mensal';
+                if (plan === 'expired') return 'Expirado';
+                return plan || 'Inativo';
+              })()}
             </span>
           </div>
         </div>

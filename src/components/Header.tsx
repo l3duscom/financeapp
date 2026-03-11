@@ -1,7 +1,6 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { Bell } from 'lucide-react';
 import styles from './Header.module.css';
 
 function getGreeting(): string {
@@ -27,11 +26,6 @@ export default function Header() {
       </div>
 
       <div className={styles.actions}>
-        <button className={styles.iconBtn} aria-label="Notificações">
-          <Bell size={20} strokeWidth={1.5} />
-          <span className={styles.notifBadge} />
-        </button>
-
         <div className={styles.avatar}>
           {firstName.charAt(0).toUpperCase()}
         </div>
