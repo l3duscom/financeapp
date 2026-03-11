@@ -1,6 +1,8 @@
 'use client';
 
+import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
+import { Bell } from 'lucide-react';
 import styles from './Header.module.css';
 
 function getGreeting(): string {
@@ -26,6 +28,11 @@ export default function Header() {
       </div>
 
       <div className={styles.actions}>
+        <Link href="/alerts" className={styles.iconBtn} aria-label="Alertas">
+          <Bell size={20} strokeWidth={1.5} />
+          <span className={styles.notifBadge} />
+        </Link>
+
         <div className={styles.avatar}>
           {firstName.charAt(0).toUpperCase()}
         </div>
