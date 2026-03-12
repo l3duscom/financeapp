@@ -1,4 +1,5 @@
 import { getAdminAuth, getAdminDb } from './firebase-admin';
+import { buildAppResetLink } from './auth-utils';
 import type { AsaasWebhookPayload, AsaasWebhookEvent, AsaasCustomer } from '@/types';
 
 const ASAAS_BASE_URL = process.env.ASAAS_ENVIRONMENT === 'production'
@@ -58,8 +59,8 @@ export async function createUserFromPayment(payload: AsaasWebhookPayload): Promi
       displayName: customer.name,
     });
 
-    // Send password reset email so user can set their own password
-    const resetLink = await getAdminAuth().generatePasswordResetLink(customer.email);
+    const firebaseLink = await getAdminAuth().generatePasswordResetLink(customer.email);
+    const resetLink = buildAppResetLink(firebaseLink);
     console.log(`[Asaas Webhook] Password reset link generated for ${customer.email}: ${resetLink}`);
     // TODO: Send this link via email service (SendGrid, Resend, etc.)
   }

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAdminAuth, getAdminDb } from '@/lib/firebase-admin';
 import { sendPasswordResetEmail } from '@/lib/email';
+import { buildAppResetLink } from '@/lib/auth-utils';
 
 export async function POST(request: Request) {
   try {
@@ -39,10 +40,9 @@ export async function POST(request: Request) {
       // ignore
     }
 
-    // Generate reset link via Firebase Admin
-    const resetLink = await adminAuth.generatePasswordResetLink(normalizedEmail);
+    const firebaseLink = await adminAuth.generatePasswordResetLink(normalizedEmail);
+    const resetLink = buildAppResetLink(firebaseLink);
 
-    // Send via Resend
     await sendPasswordResetEmail({
       to: normalizedEmail,
       name: userName,

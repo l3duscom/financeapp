@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAdminDb, getAdminAuth } from '@/lib/firebase-admin';
 import { sendWelcomeEmail } from '@/lib/email';
+import { buildAppResetLink } from '@/lib/auth-utils';
 
 /**
  * Hotmart Webhook - Cria conta e ativa assinatura automaticamente
@@ -115,7 +116,8 @@ export async function POST(request: Request) {
 
         // Generate password reset link & send welcome email
         try {
-          const resetLink = await adminAuth.generatePasswordResetLink(buyerEmail);
+          const firebaseLink = await adminAuth.generatePasswordResetLink(buyerEmail);
+          const resetLink = buildAppResetLink(firebaseLink);
           await sendWelcomeEmail({
             to: buyerEmail,
             name: data.buyer.name,
