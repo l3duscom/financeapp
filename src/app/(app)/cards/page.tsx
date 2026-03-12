@@ -9,6 +9,7 @@ import {
   getTransactions,
   addTransaction,
   getCategories,
+  getPeople,
 } from '@/lib/firestore';
 import { parseCSV, readCSVFile, type ParsedTransaction } from '@/lib/csv-parser';
 import {
@@ -221,10 +222,12 @@ export default function CardsPage() {
   // Add expense modal
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [people, setPeople] = useState<{ id: string; name: string }[]>([]);
   const [expDesc, setExpDesc] = useState('');
   const [expAmount, setExpAmount] = useState('');
   const [expCategory, setExpCategory] = useState('');
   const [expDate, setExpDate] = useState(new Date().toISOString().split('T')[0]);
+  const [expPerson, setExpPerson] = useState('');
   const [savingExpense, setSavingExpense] = useState(false);
 
   // CSV import
@@ -233,6 +236,7 @@ export default function CardsPage() {
   const [showImportModal, setShowImportModal] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importCategory, setImportCategory] = useState('Fatura');
+  const [importPerson, setImportPerson] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // PDF upload & invoices
@@ -366,7 +370,11 @@ export default function CardsPage() {
       const cats = await getCategories(user.uid);
       setCategories(cats);
     }
-    setExpDesc(''); setExpAmount(''); setExpCategory(''); setExpDate(new Date().toISOString().split('T')[0]);
+    if (people.length === 0) {
+      const ppl = await getPeople(user.uid);
+      setPeople(ppl);
+    }
+    setExpDesc(''); setExpAmount(''); setExpCategory(''); setExpDate(new Date().toISOString().split('T')[0]); setExpPerson('');
     setShowExpenseModal(true);
   };
 
@@ -383,6 +391,7 @@ export default function CardsPage() {
         description: expDesc.trim(), amount, type: 'expense',
         category: expCategory || 'Outros', date: new Date(expDate),
         account: selectedCard.name,
+        ...(expPerson ? { person: expPerson } : {}),
       });
       setShowExpenseModal(false);
       setSuccess('Despesa adicionada!');
@@ -424,6 +433,11 @@ export default function CardsPage() {
         setParsedTransactions(result.transactions);
         setParseErrors(result.errors);
         setImportCategory(selectedCard.name);
+        setImportPerson('');
+        if (people.length === 0) {
+          const ppl = await getPeople(user.uid);
+          setPeople(ppl);
+        }
         setShowImportModal(true);
       } catch { setError('Erro ao ler o arquivo CSV'); }
       return;
@@ -467,6 +481,7 @@ export default function CardsPage() {
           description: tx.description, amount: tx.amount, type: tx.type,
           category: importCategory, date: new Date(tx.date),
           account: selectedCard.name,
+          ...(importPerson ? { person: importPerson } : {}),
         });
         imported++;
       }
@@ -657,6 +672,15 @@ export default function CardsPage() {
                     {expenseCategories.map((c) => <option key={c.id} value={c.name}>{c.name}</option>)}
                   </select>
                 </div>
+                {people.length > 0 && (
+                  <div className={styles.formField}>
+                    <label className={styles.formLabel}>Pessoa (opcional)</label>
+                    <select className={styles.formSelect} value={expPerson} onChange={(e) => setExpPerson(e.target.value)}>
+                      <option value="">Sem pessoa</option>
+                      {people.map((p) => <option key={p.id} value={p.name}>{p.name}</option>)}
+                    </select>
+                  </div>
+                )}
               </div>
               <div className={styles.modalActions}>
                 <button onClick={() => setShowExpenseModal(false)} className={styles.cancelBtn}>Cancelar</button>
@@ -688,6 +712,15 @@ export default function CardsPage() {
                 <label>Categoria:</label>
                 <input type="text" value={importCategory} onChange={(e) => setImportCategory(e.target.value)} className={styles.formInput} placeholder="Ex: Fatura Nubank" />
               </div>
+              {people.length > 0 && (
+                <div className={styles.importCategoryField}>
+                  <label>Pessoa:</label>
+                  <select className={styles.formSelect} value={importPerson} onChange={(e) => setImportPerson(e.target.value)}>
+                    <option value="">Sem pessoa</option>
+                    {people.map((p) => <option key={p.id} value={p.name}>{p.name}</option>)}
+                  </select>
+                </div>
+              )}
               <div className={styles.selectAllRow}>
                 <button onClick={toggleAllTx} className={styles.selectAllBtn}>
                   {parsedTransactions.every((t) => t.selected) ? <><Ban size={14} /> Desmarcar todas</> : <><Check size={14} /> Selecionar todas</>}

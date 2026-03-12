@@ -156,19 +156,19 @@
 }
 
 .editBtn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-2);
   border-radius: var(--radius-sm);
   color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
   transition: all var(--transition-fast);
 }
 
 .editBtn:hover {
-  background: var(--color-bg-glass);
-  color: var(--color-text-secondary);
+  background: rgba(99, 102, 241, 0.08);
+  color: var(--color-accent-primary-light);
 }
 
 .editForm {

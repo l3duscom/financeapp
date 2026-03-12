@@ -6,13 +6,16 @@ import {
   getTransactions,
   addTransaction,
   deleteTransaction,
+  updateTransaction,
   initializeDefaultCategories,
   initializeDefaultAccounts,
   getMonthlyTotals,
+  getPeople,
 } from '@/lib/firestore';
-import type { Transaction } from '@/types';
+import type { Transaction, Person } from '@/types';
 import TransactionIcon from '@/components/TransactionIcon';
 import TransactionModal from '@/components/TransactionModal';
+import Link from 'next/link';
 import {
   Plus,
   ArrowUpCircle,
@@ -24,6 +27,8 @@ import {
   TrendingUp,
   TrendingDown,
   Wallet,
+  Upload,
+  CreditCard,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -32,6 +37,7 @@ import styles from './transactions.module.css';
 export default function TransactionsPage() {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [people, setPeople] = useState<Person[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [filterType, setFilterType] = useState<'all' | 'income' | 'expense'>('all');
@@ -48,12 +54,16 @@ export default function TransactionsPage() {
         initializeDefaultAccounts(user.uid),
       ]);
 
-      const txs = await getTransactions(user.uid, {
-        month: currentMonth,
-        year: currentYear,
-        type: filterType === 'all' ? undefined : filterType,
-      });
+      const [txs, ppl] = await Promise.all([
+        getTransactions(user.uid, {
+          month: currentMonth,
+          year: currentYear,
+          type: filterType === 'all' ? undefined : filterType,
+        }),
+        getPeople(user.uid),
+      ]);
       setTransactions(txs);
+      setPeople(ppl);
     } catch (error) {
       console.error('Error loading transactions:', error);
     } finally {
@@ -85,6 +95,17 @@ export default function TransactionsPage() {
   const handleDeleteTransaction = async (id: string) => {
     await deleteTransaction(id);
     setTransactions((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const handleAssignPerson = async (txId: string, personName: string) => {
+    try {
+      await updateTransaction(txId, { person: personName || undefined });
+      setTransactions((prev) =>
+        prev.map((tx) => (tx.id === txId ? { ...tx, person: personName || undefined } : tx))
+      );
+    } catch (err) {
+      console.error('Error assigning person:', err);
+    }
   };
 
   const filteredTransactions = transactions.filter((tx) => {
@@ -199,6 +220,14 @@ export default function TransactionsPage() {
             </button>
           ))}
         </div>
+        <div className={styles.quickLinks}>
+          <Link href="/import" className={styles.quickLink}>
+            <Upload size={14} /> Importar Extrato
+          </Link>
+          <Link href="/cards" className={styles.quickLink}>
+            <CreditCard size={14} /> Cartões
+          </Link>
+        </div>
       </div>
 
       {/* Transaction List */}
@@ -251,6 +280,19 @@ export default function TransactionsPage() {
                     >
                       <Trash2 size={14} />
                     </button>
+                    {people.length > 0 && (
+                      <select
+                        className={styles.personSelect}
+                        value={tx.person || ''}
+                        onChange={(e) => handleAssignPerson(tx.id, e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <option value="">Pessoa</option>
+                        {people.map((p) => (
+                          <option key={p.id} value={p.name}>{p.name}</option>
+                        ))}
+                      </select>
+                    )}
                   </div>
                 </div>
               );

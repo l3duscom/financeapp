@@ -8,13 +8,14 @@ import {
   getCategories,
   getAccounts,
   addAccount,
+  getPeople,
   type Account,
 } from '@/lib/firestore';
 import { parseCSV, readCSVFile, type ParsedTransaction } from '@/lib/csv-parser';
 import { parseOFX, readOFXFile } from '@/lib/ofx-parser';
 import TransactionIcon from '@/components/TransactionIcon';
 import Toast from '@/components/Toast';
-import type { Transaction, Category } from '@/types';
+import type { Transaction, Category, Person } from '@/types';
 import {
   Upload,
   FileSpreadsheet,
@@ -107,6 +108,8 @@ export default function ImportPage() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedAccount, setSelectedAccount] = useState('');
   const [newAccountName, setNewAccountName] = useState('');
+  const [selectedPerson, setSelectedPerson] = useState('');
+  const [people, setPeople] = useState<Person[]>([]);
   const [existingTransactions, setExistingTransactions] = useState<Transaction[]>([]);
 
   // Drag state
@@ -116,14 +119,16 @@ export default function ImportPage() {
     if (!user) return;
     const load = async () => {
       try {
-        const [cats, accs, txs] = await Promise.all([
+        const [cats, accs, txs, ppl] = await Promise.all([
           getCategories(user.uid),
           getAccounts(user.uid),
           getTransactions(user.uid),
+          getPeople(user.uid),
         ]);
         setCategories(cats);
         setAccounts(accs);
         setExistingTransactions(txs);
+        setPeople(ppl);
         if (accs.length === 0) setSelectedAccount('__new__');
       } catch (err) {
         console.error('Error loading data:', err);
@@ -312,6 +317,7 @@ export default function ImportPage() {
           description: tx.description,
           date: new Date(tx.date + 'T12:00:00'),
           account: finalAccount,
+          ...(selectedPerson ? { person: selectedPerson } : {}),
         });
         done++;
         setImportProgress(Math.round((done / batch.length) * 100));
@@ -553,6 +559,21 @@ export default function ImportPage() {
                 />
               )}
             </div>
+            {people.length > 0 && (
+              <div className={styles.configField}>
+                <span className={styles.configLabel}>Pessoa (opcional)</span>
+                <select
+                  className={styles.configSelect}
+                  value={selectedPerson}
+                  onChange={(e) => setSelectedPerson(e.target.value)}
+                >
+                  <option value="">Sem pessoa atribuída</option>
+                  {people.map((p) => (
+                    <option key={p.id} value={p.name}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
           {/* Select all */}

@@ -215,6 +215,7 @@ export default function BudgetPage() {
                       className={styles.editBtn}
                     >
                       <Edit3 size={14} />
+                      <span>{row.limit > 0 ? 'Editar limite' : 'Definir limite'}</span>
                     </button>
                   )}
                 </div>
