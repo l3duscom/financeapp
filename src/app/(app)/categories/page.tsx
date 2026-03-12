@@ -13,6 +13,7 @@ import { getBudgets, setBudget, type MonthlyBudget } from '@/lib/planner';
 import { getTransactionEmoji } from '@/lib/emoji';
 import TransactionIcon from '@/components/TransactionIcon';
 import CurrencyInput, { parseCurrency } from '@/components/CurrencyInput';
+import Toast from '@/components/Toast';
 import type { Category, Transaction, TransactionType } from '@/types';
 import {
   Tag,
@@ -20,7 +21,6 @@ import {
   ArrowLeft,
   X,
   AlertCircle,
-  CheckCircle,
   Trash2,
 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -300,18 +300,8 @@ export default function CategoriesPage() {
           Categorias
         </h2>
 
-        {error && (
-          <div className={styles.errorMsg}>
-            <AlertCircle size={16} /> {error}
-            <button className={styles.msgClose} onClick={() => setError('')}><X size={14} /></button>
-          </div>
-        )}
-        {success && (
-          <div className={styles.successMsg}>
-            <CheckCircle size={16} /> {success}
-            <button className={styles.msgClose} onClick={() => setSuccess('')}><X size={14} /></button>
-          </div>
-        )}
+        <Toast type="error" message={error} onClose={() => setError('')} duration={0} />
+        <Toast type="success" message={success} onClose={() => setSuccess('')} />
 
         <div className={styles.detailView}>
           <div className={styles.detailHeader}>
@@ -561,18 +551,8 @@ export default function CategoriesPage() {
         Categorias
       </h2>
 
-      {error && (
-        <div className={styles.errorMsg}>
-          <AlertCircle size={16} /> {error}
-          <button className={styles.msgClose} onClick={() => setError('')}><X size={14} /></button>
-        </div>
-      )}
-      {success && (
-        <div className={styles.successMsg}>
-          <CheckCircle size={16} /> {success}
-          <button className={styles.msgClose} onClick={() => setSuccess('')}><X size={14} /></button>
-        </div>
-      )}
+      <Toast type="error" message={error} onClose={() => setError('')} duration={0} />
+      <Toast type="success" message={success} onClose={() => setSuccess('')} />
 
       <div className={styles.headerRow}>
         <div className={styles.typeToggle}>

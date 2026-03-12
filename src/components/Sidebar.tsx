@@ -18,6 +18,7 @@ import {
   Bell,
   Layers,
   Tag,
+  Upload,
   Sun,
   Moon,
 } from 'lucide-react';
@@ -32,6 +33,7 @@ const mainNavItems = [
   { href: '/projections', label: 'Simulador', icon: Calculator },
   { href: '/cards', label: 'Cartões', icon: Wallet },
   { href: '/installments', label: 'Parcelas', icon: Layers },
+  { href: '/import', label: 'Extrato Bancário', icon: Upload },
   { href: '/reports', label: 'Relatórios', icon: BarChart3 },
   { href: '/alerts', label: 'Alertas', icon: Bell },
 ];

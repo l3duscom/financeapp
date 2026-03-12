@@ -22,6 +22,7 @@ import {
 } from '@/lib/storage';
 import TransactionIcon from '@/components/TransactionIcon';
 import CurrencyInput, { parseCurrency } from '@/components/CurrencyInput';
+import Toast from '@/components/Toast';
 import type { CreditCard, CardBrand, Transaction, Category } from '@/types';
 import {
   CreditCard as CreditCardIcon,
@@ -30,7 +31,6 @@ import {
   X,
   Calendar,
   AlertCircle,
-  CheckCircle,
   ArrowLeft,
   Upload,
   DollarSign,
@@ -492,9 +492,8 @@ export default function CardsPage() {
   if (selectedCard) {
     return (
       <div className={styles.page}>
-        {/* Messages */}
-        {error && <div className={styles.errorMsg}><AlertCircle size={16} />{error}<button onClick={() => setError('')} className={styles.msgClose}><X size={14} /></button></div>}
-        {success && <div className={styles.successMsg}><CheckCircle size={16} />{success}</div>}
+        <Toast type="error" message={error} onClose={() => setError('')} duration={0} />
+        <Toast type="success" message={success} onClose={() => setSuccess('')} />
 
         {/* Back + Card mini header */}
         <div className={styles.detailHeader}>
@@ -724,8 +723,8 @@ export default function CardsPage() {
   // ===== GRID VIEW =====
   return (
     <div className={styles.page}>
-      {error && <div className={styles.errorMsg}><AlertCircle size={16} />{error}<button onClick={() => setError('')} className={styles.msgClose}><X size={14} /></button></div>}
-      {success && <div className={styles.successMsg}><CheckCircle size={16} />{success}</div>}
+      <Toast type="error" message={error} onClose={() => setError('')} duration={0} />
+      <Toast type="success" message={success} onClose={() => setSuccess('')} />
 
       <h2 className={styles.pageTitle}>
         <CreditCardIcon size={22} />

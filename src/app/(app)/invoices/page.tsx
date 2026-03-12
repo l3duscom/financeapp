@@ -14,6 +14,7 @@ import {
 import { addTransaction, getCreditCards } from '@/lib/firestore';
 import { parseCSV, readCSVFile, type ParsedTransaction } from '@/lib/csv-parser';
 import type { CreditCard as CreditCardType } from '@/types';
+import Toast from '@/components/Toast';
 import {
   Upload,
   FileText,
@@ -22,7 +23,6 @@ import {
   CreditCard,
   Calendar,
   AlertCircle,
-  CheckCircle,
   X,
   FileSpreadsheet,
   Check,
@@ -267,22 +267,8 @@ export default function InvoicesPage() {
         Faturas de Cartão
       </h2>
 
-      {/* Messages */}
-      {error && (
-        <div className={styles.errorMsg}>
-          <AlertCircle size={16} />
-          {error}
-          <button onClick={() => setError('')} className={styles.msgClose}>
-            <X size={14} />
-          </button>
-        </div>
-      )}
-      {success && (
-        <div className={styles.successMsg}>
-          <CheckCircle size={16} />
-          {success}
-        </div>
-      )}
+      <Toast type="error" message={error} onClose={() => setError('')} duration={0} />
+      <Toast type="success" message={success} onClose={() => setSuccess('')} />
 
       {/* Upload Section */}
       <div className={styles.uploadSection}>

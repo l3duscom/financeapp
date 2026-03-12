@@ -116,10 +116,17 @@ export function isValidInvoiceFile(file: File): { valid: boolean; error?: string
     'application/pdf',
     'text/csv',
     'application/vnd.ms-excel',
+    'application/x-ofx',
+    'application/ofx',
+    'application/x-ofc',
   ];
 
-  if (!allowedTypes.includes(file.type)) {
-    return { valid: false, error: 'Formato não suportado. Use PDF ou CSV.' };
+  const allowedExtensions = ['.pdf', '.csv', '.ofx', '.ofc'];
+  const ext = file.name.toLowerCase().slice(file.name.lastIndexOf('.'));
+  const typeOk = allowedTypes.includes(file.type) || allowedExtensions.includes(ext);
+
+  if (!typeOk) {
+    return { valid: false, error: 'Formato não suportado. Use OFX, CSV ou PDF.' };
   }
 
   if (file.size > maxSize) {

@@ -130,6 +130,30 @@ function parseAmount(value: string): number | null {
   return isNaN(num) ? null : num;
 }
 
+// Presets for known bank CSV formats
+const BANK_PRESETS: { match: RegExp; dateCol: number; descCol: number; amountCol: number }[] = [
+  // Nubank: Date,Title,Amount (English headers)
+  { match: /^date[,;].*title[,;].*amount/i, dateCol: 0, descCol: 1, amountCol: 2 },
+  // Nubank alt: Data,Descrição,Valor
+  { match: /^data[,;].*descri[çc][ãa]o[,;].*valor/i, dateCol: 0, descCol: 1, amountCol: 2 },
+  // Inter: Data Lançamento;Descrição;Valor
+  { match: /data\s*lan[çc]amento/i, dateCol: 0, descCol: 1, amountCol: 2 },
+  // C6: Data;Descrição;Valor (R$)
+  { match: /valor\s*\(r\$\)/i, dateCol: 0, descCol: 1, amountCol: 2 },
+  // Bradesco: Data;Histórico;Valor
+  { match: /hist[óo]rico/i, dateCol: 0, descCol: 1, amountCol: 2 },
+  // Itaú: data;lançamento;ag/origem;valor;saldo
+  { match: /ag\/origem|ag\.?\s*origem/i, dateCol: 0, descCol: 1, amountCol: 3 },
+  // BB: Data;Dependencia Origem;Histórico;Data do Balancete;Número do documento;Valor
+  { match: /depend[eê]ncia\s*origem/i, dateCol: 0, descCol: 2, amountCol: 5 },
+  // Santander: Data;Descrição;Valor;Saldo
+  { match: /^data[,;]descri[çc][ãa]o[,;]valor[,;]saldo/i, dateCol: 0, descCol: 1, amountCol: 2 },
+  // Caixa: Data;Descrição;Doc;Credito;Debito
+  { match: /cr[ée]dito[,;]d[ée]bito/i, dateCol: 0, descCol: 1, amountCol: 3 },
+  // Sicredi/Sicoob: Data Movimento;Descrição;Tipo;Valor
+  { match: /data\s*movimento/i, dateCol: 0, descCol: 1, amountCol: 3 },
+];
+
 /**
  * Detecta qual coluna é data, descrição e valor
  */
@@ -138,10 +162,18 @@ function detectColumns(headers: string[], firstDataRow: string[]): { dateCol: nu
   let amountCol = -1;
   let descCol = -1;
 
-  // Try by header names first
+  // Try bank presets first
+  const headerLine = headers.join(';');
+  for (const preset of BANK_PRESETS) {
+    if (preset.match.test(headerLine)) {
+      return { dateCol: preset.dateCol, descCol: preset.descCol, amountCol: preset.amountCol };
+    }
+  }
+
+  // Try by header names
   const dateKeywords = ['data', 'date', 'dt', 'vencimento'];
   const amountKeywords = ['valor', 'amount', 'value', 'preço', 'preco', 'total', 'vlr'];
-  const descKeywords = ['descrição', 'descricao', 'description', 'desc', 'título', 'titulo', 'estabelecimento', 'lançamento', 'lancamento'];
+  const descKeywords = ['descrição', 'descricao', 'description', 'desc', 'título', 'titulo', 'estabelecimento', 'lançamento', 'lancamento', 'historico', 'histórico', 'title'];
 
   for (let i = 0; i < headers.length; i++) {
     const h = headers[i].toLowerCase().trim();
@@ -244,7 +276,7 @@ export function parseCSV(content: string): ParseResult {
       date: parsedDate,
       description,
       amount: Math.abs(parsedAmount),
-      type: parsedAmount < 0 ? 'income' : 'expense', // Negative = payment/credit
+      type: parsedAmount < 0 ? 'expense' : 'income',
       selected: true,
     });
   }

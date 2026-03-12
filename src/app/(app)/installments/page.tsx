@@ -13,6 +13,7 @@ import {
 import { getTransactionEmoji } from '@/lib/emoji';
 import TransactionIcon from '@/components/TransactionIcon';
 import CurrencyInput, { parseCurrency } from '@/components/CurrencyInput';
+import Toast from '@/components/Toast';
 import type { Installment, Category, CreditCard, Transaction } from '@/types';
 import {
   Layers,
@@ -20,7 +21,6 @@ import {
   Trash2,
   X,
   AlertCircle,
-  CheckCircle,
   Calendar,
   Zap,
 } from 'lucide-react';
@@ -367,18 +367,8 @@ export default function InstallmentsPage() {
         Parcelas
       </h2>
 
-      {error && (
-        <div className={styles.errorMsg}>
-          <AlertCircle size={16} /> {error}
-          <button className={styles.msgClose} onClick={() => setError('')}><X size={14} /></button>
-        </div>
-      )}
-      {success && (
-        <div className={styles.successMsg}>
-          <CheckCircle size={16} /> {success}
-          <button className={styles.msgClose} onClick={() => setSuccess('')}><X size={14} /></button>
-        </div>
-      )}
+      <Toast type="error" message={error} onClose={() => setError('')} duration={0} />
+      <Toast type="success" message={success} onClose={() => setSuccess('')} />
 
       {/* Filters */}
       <div className={styles.filtersRow}>
