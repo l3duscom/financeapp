@@ -2,8 +2,8 @@
 
 import { useState, useEffect, type FormEvent } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { getCategories, getAccounts, type Account } from '@/lib/firestore';
-import type { Category, TransactionType } from '@/types';
+import { getCategories, getAccounts, getPeople, type Account } from '@/lib/firestore';
+import type { Category, TransactionType, Person } from '@/types';
 import {
   X,
   ArrowUpCircle,
@@ -13,6 +13,7 @@ import {
   Tag,
   FileText,
   CreditCard,
+  Users,
 } from 'lucide-react';
 import styles from './TransactionModal.module.css';
 
@@ -23,6 +24,7 @@ interface TransactionFormData {
   description: string;
   date: string;
   account: string;
+  person?: string;
 }
 
 interface TransactionModalProps {
@@ -43,6 +45,7 @@ export default function TransactionModal({
   const { user } = useAuth();
   const [categories, setCategories] = useState<Category[]>([]);
   const [accounts, setAccounts] = useState<Account[]>([]);
+  const [people, setPeople] = useState<Person[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<TransactionFormData>({
     type: 'expense',
@@ -51,6 +54,7 @@ export default function TransactionModal({
     description: '',
     date: new Date().toISOString().split('T')[0],
     account: '',
+    person: '',
   });
 
   useEffect(() => {
@@ -66,6 +70,7 @@ export default function TransactionModal({
           description: '',
           date: new Date().toISOString().split('T')[0],
           account: '',
+          person: '',
         });
       }
     }
@@ -74,12 +79,14 @@ export default function TransactionModal({
 
   const loadData = async () => {
     if (!user) return;
-    const [cats, accs] = await Promise.all([
+    const [cats, accs, ppl] = await Promise.all([
       getCategories(user.uid),
       getAccounts(user.uid),
+      getPeople(user.uid),
     ]);
     setCategories(cats);
     setAccounts(accs);
+    setPeople(ppl);
   };
 
   const filteredCategories = categories.filter(
@@ -219,6 +226,24 @@ export default function TransactionModal({
                 ))}
               </select>
             </div>
+
+            {people.length > 0 && (
+              <div className={styles.inputGroup}>
+                <div className={styles.inputIcon}>
+                  <Users size={18} />
+                </div>
+                <select
+                  className={styles.select}
+                  value={formData.person || ''}
+                  onChange={(e) => setFormData((p) => ({ ...p, person: e.target.value }))}
+                >
+                  <option value="">Pessoa (opcional)</option>
+                  {people.map((p) => (
+                    <option key={p.id} value={p.name}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div className={styles.inputGroup}>
               <div className={styles.inputIcon}>

@@ -16,7 +16,7 @@ import {
   startAfter,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import type { Transaction, Category, CreditCard, Installment } from '@/types';
+import type { Transaction, Category, CreditCard, Installment, Person } from '@/types';
 
 // ===== Transactions =====
 
@@ -322,6 +322,45 @@ export async function updateInstallment(
 
 export async function deleteInstallment(installmentId: string): Promise<void> {
   await deleteDoc(doc(db, 'installments', installmentId));
+}
+
+// ===== People =====
+
+export async function getPeople(userId: string): Promise<Person[]> {
+  const q = query(
+    collection(db, 'people'),
+    where('userId', '==', userId),
+    orderBy('name', 'asc')
+  );
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map((d) => ({
+    id: d.id,
+    ...d.data(),
+    createdAt: d.data().createdAt?.toDate(),
+  })) as Person[];
+}
+
+export async function addPerson(
+  userId: string,
+  data: Omit<Person, 'id' | 'userId' | 'createdAt'>
+): Promise<string> {
+  const docRef = await addDoc(collection(db, 'people'), {
+    ...data,
+    userId,
+    createdAt: Timestamp.now(),
+  });
+  return docRef.id;
+}
+
+export async function updatePerson(
+  personId: string,
+  data: Partial<Omit<Person, 'id' | 'userId' | 'createdAt'>>
+): Promise<void> {
+  await updateDoc(doc(db, 'people', personId), data);
+}
+
+export async function deletePerson(personId: string): Promise<void> {
+  await deleteDoc(doc(db, 'people', personId));
 }
 
 // ===== Helpers =====

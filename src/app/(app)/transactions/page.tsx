@@ -72,6 +72,7 @@ export default function TransactionsPage() {
     description: string;
     date: string;
     account: string;
+    person?: string;
   }) => {
     if (!user) return;
     await addTransaction(user.uid, {

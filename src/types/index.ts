@@ -42,6 +42,7 @@ export interface Transaction {
   description: string;
   date: Date;
   account: string;
+  person?: string;
   createdAt: Date;
 }
 
@@ -136,6 +137,16 @@ export interface Installment {
   paidInstallments: number;
   startDate: Date;
   cardName: string;
+  createdAt: Date;
+}
+
+// ===== Person Types =====
+export interface Person {
+  id: string;
+  userId: string;
+  name: string;
+  color: string;
+  avatarUrl?: string;
   createdAt: Date;
 }
 
