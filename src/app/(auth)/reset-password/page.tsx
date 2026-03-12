@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, type FormEvent } from 'react';
+import { useState, useEffect, type FormEvent, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { verifyPasswordResetCode, confirmPasswordReset } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
@@ -11,6 +11,23 @@ import { ArrowLeft, Lock, CheckCircle, AlertTriangle, Eye, EyeOff, Check } from 
 type PageState = 'loading' | 'form' | 'success' | 'invalid';
 
 export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={
+      <div className={styles.container}>
+        <div className={styles.card}>
+          <div className={styles.loadingState}>
+            <div className={styles.loadingSpinner} />
+            <p className={styles.description}>Carregando...</p>
+          </div>
+        </div>
+      </div>
+    }>
+      <ResetPasswordForm />
+    </Suspense>
+  );
+}
+
+function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const oobCode = searchParams.get('oobCode');
 
