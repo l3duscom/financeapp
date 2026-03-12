@@ -16,7 +16,7 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   viewportFit: 'cover',
-  themeColor: '#0a0e1a',
+  themeColor: '#f8fafc',
 };
 
 export const metadata: Metadata = {
@@ -38,7 +38,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="pt-BR" className={inter.variable}>
+    <html lang="pt-BR" className={inter.variable} data-theme="light">
       <body suppressHydrationWarning>
         <ThemeProvider>
           <AuthProvider>

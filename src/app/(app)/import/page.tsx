@@ -24,7 +24,6 @@ import {
   Check,
   Ban,
   Info,
-  HelpCircle,
 } from 'lucide-react';
 import { format } from 'date-fns';
 import styles from './import.module.css';
@@ -35,39 +34,6 @@ interface ImportTransaction extends ParsedTransaction {
   isDuplicate: boolean;
 }
 
-interface BankGuide {
-  name: string;
-  domain: string;
-  formats: string;
-  steps: string;
-}
-
-const BANK_GUIDES: BankGuide[] = [
-  { name: 'Nubank', domain: 'nubank.com.br', formats: 'CSV, OFX', steps: 'App > Conta > Extrato > Exportar > selecione OFX ou CSV' },
-  { name: 'Inter', domain: 'bancointer.com.br', formats: 'OFX, CSV', steps: 'App > Extrato > Exportar > OFX ou CSV' },
-  { name: 'Itaú', domain: 'itau.com.br', formats: 'OFX', steps: 'Internet Banking > Extrato > Salvar como > OFX' },
-  { name: 'Bradesco', domain: 'bradesco.com.br', formats: 'OFX, CSV', steps: 'Internet Banking > Extrato > Exportar > OFX' },
-  { name: 'Santander', domain: 'santander.com.br', formats: 'OFX', steps: 'Internet Banking > Extrato > Exportar OFX' },
-  { name: 'Banco do Brasil', domain: 'bb.com.br', formats: 'OFX', steps: 'Internet Banking > Extrato > Salvar > OFX' },
-  { name: 'Caixa', domain: 'caixa.gov.br', formats: 'OFX', steps: 'Internet Banking > Extrato > Exportar OFX' },
-  { name: 'C6 Bank', domain: 'c6bank.com.br', formats: 'OFX, CSV', steps: 'App > Extrato > Compartilhar > OFX' },
-  { name: 'BTG Pactual', domain: 'btgpactual.com', formats: 'OFX', steps: 'Internet Banking > Extrato > Exportar > OFX' },
-  { name: 'XP', domain: 'xpi.com.br', formats: 'OFX', steps: 'Plataforma > Extrato > Exportar OFX' },
-  { name: 'Neon', domain: 'neon.com.br', formats: 'OFX', steps: 'App > Extrato > Exportar > OFX' },
-  { name: 'PagBank', domain: 'pagseguro.uol.com.br', formats: 'CSV, OFX', steps: 'App > Extrato > Exportar extrato' },
-  { name: 'Mercado Pago', domain: 'mercadopago.com.br', formats: 'CSV', steps: 'App > Atividade > Exportar atividade' },
-  { name: 'Sicredi', domain: 'sicredi.com.br', formats: 'OFX', steps: 'Internet Banking > Extrato > Exportar > OFX' },
-  { name: 'Sicoob', domain: 'sicoob.com.br', formats: 'OFX', steps: 'Internet Banking > Extrato > Exportar > OFX' },
-  { name: 'Safra', domain: 'safra.com.br', formats: 'OFX', steps: 'Internet Banking > Extrato > Exportar' },
-  { name: 'Original', domain: 'original.com.br', formats: 'OFX', steps: 'App > Extrato > Exportar > OFX' },
-  { name: 'Banrisul', domain: 'banrisul.com.br', formats: 'OFX', steps: 'Internet Banking > Extrato > Exportar OFX' },
-  { name: 'Daycoval', domain: 'daycoval.com.br', formats: 'OFX', steps: 'Internet Banking > Extrato > Exportar' },
-  { name: 'BMG', domain: 'bancobmg.com.br', formats: 'OFX', steps: 'Internet Banking > Extrato > Exportar' },
-  { name: 'Agibank', domain: 'agibank.com.br', formats: 'OFX', steps: 'App > Extrato > Exportar' },
-  { name: 'Will Bank', domain: 'willbank.com.br', formats: 'CSV', steps: 'App > Extrato > Exportar CSV' },
-  { name: 'Next', domain: 'next.me', formats: 'OFX', steps: 'App > Extrato > Exportar OFX' },
-  { name: 'Banco Pan', domain: 'bancopan.com.br', formats: 'OFX', steps: 'Internet Banking > Extrato > Exportar' },
-];
 
 function detectFormat(file: File): FileFormat {
   const ext = file.name.toLowerCase();
@@ -90,7 +56,6 @@ export default function ImportPage() {
   const [parsing, setParsing] = useState(false);
   const [importing, setImporting] = useState(false);
   const [importProgress, setImportProgress] = useState(0);
-  const [expandedGuide, setExpandedGuide] = useState<string | null>(null);
 
   // File state
   const [file, setFile] = useState<File | null>(null);
@@ -406,40 +371,6 @@ export default function ImportPage() {
             }}
           />
 
-          {/* Bank Guides */}
-          <div className={styles.guidesSection}>
-            <span className={styles.guidesTitle}>
-              <HelpCircle size={16} style={{ verticalAlign: 'middle', marginRight: 6 }} />
-              Como exportar o extrato do seu banco
-            </span>
-            <div className={styles.guidesGrid}>
-              {BANK_GUIDES.map((guide) => (
-                <div
-                  key={guide.name}
-                  className={`${styles.guideCard} ${expandedGuide === guide.name ? styles.guideCardActive : ''}`}
-                  onClick={() => setExpandedGuide(expandedGuide === guide.name ? null : guide.name)}
-                >
-                  <div className={styles.guideLogo}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={`https://logo.clearbit.com/${guide.domain}`}
-                      alt={guide.name}
-                      referrerPolicy="no-referrer"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = 'none';
-                        (e.target as HTMLImageElement).parentElement!.textContent = '🏦';
-                      }}
-                    />
-                  </div>
-                  <div className={styles.guideInfo}>
-                    <span className={styles.guideName}>{guide.name}</span>
-                    <span className={styles.guideFormats}>{guide.formats}</span>
-                    <div className={styles.guideSteps}>{guide.steps}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </>
       )}
 

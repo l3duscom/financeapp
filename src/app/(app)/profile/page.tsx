@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { doc, updateDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import {
   getAccounts,
   addAccount,
@@ -22,6 +24,8 @@ import {
   User,
   Mail,
   Shield,
+  Edit3,
+  Check,
 } from 'lucide-react';
 import styles from './profile.module.css';
 
@@ -42,11 +46,12 @@ const accountTypeIcons: Record<string, React.ElementType> = {
 };
 
 export default function ProfilePage() {
-  const { profile, signOut } = useAuth();
-  const { user } = useAuth();
+  const { profile, signOut, user } = useAuth();
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddAccount, setShowAddAccount] = useState(false);
+  const [editingName, setEditingName] = useState(false);
+  const [nameValue, setNameValue] = useState('');
   const [newAccount, setNewAccount] = useState({
     name: '',
     type: 'checking' as Account['type'],
@@ -86,6 +91,13 @@ export default function ProfilePage() {
     setAccounts((prev) => prev.filter((a) => a.id !== id));
   };
 
+  const handleSaveName = async () => {
+    if (!user || !nameValue.trim()) return;
+    await updateDoc(doc(db, 'users', user.uid), { name: nameValue.trim() });
+    setEditingName(false);
+    window.location.reload();
+  };
+
   const formatCurrency = (value: number) =>
     new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 
@@ -97,10 +109,39 @@ export default function ProfilePage() {
           {profile?.name?.charAt(0)?.toUpperCase() || 'U'}
         </div>
         <div className={styles.userInfo}>
-          <h2 className={styles.userName}>{profile?.name || 'Usuário'}</h2>
+          {editingName ? (
+            <div className={styles.editNameRow}>
+              <input
+                type="text"
+                value={nameValue}
+                onChange={(e) => setNameValue(e.target.value)}
+                className={styles.editNameInput}
+                autoFocus
+                onKeyDown={(e) => e.key === 'Enter' && handleSaveName()}
+                placeholder="Seu nome"
+              />
+              <button onClick={handleSaveName} className={styles.editNameBtn}>
+                <Check size={16} />
+              </button>
+            </div>
+          ) : (
+            <div className={styles.editNameRow}>
+              <h2 className={styles.userName}>{profile?.name || user?.displayName || 'Usuário'}</h2>
+              <button
+                onClick={() => {
+                  setNameValue(profile?.name || user?.displayName || '');
+                  setEditingName(true);
+                }}
+                className={styles.editNameIcon}
+                aria-label="Editar nome"
+              >
+                <Edit3 size={14} />
+              </button>
+            </div>
+          )}
           <div className={styles.userDetail}>
             <Mail size={14} />
-            <span>{profile?.email}</span>
+            <span>{profile?.email || user?.email}</span>
           </div>
           <div className={styles.userDetail}>
             <Shield size={14} />
@@ -108,12 +149,13 @@ export default function ProfilePage() {
               {(() => {
                 const plan = profile?.subscription?.plan;
                 const active = profile?.subscription?.active;
-                if (!active) return 'Inativo';
                 if (plan === 'trial') return 'Trial (3 dias)';
                 if (plan === 'annual' || plan === 'anual') return 'Plano Anual';
                 if (plan === 'monthly' || plan === 'mensal') return 'Plano Mensal';
+                if (plan === 'premium') return 'Premium';
                 if (plan === 'expired') return 'Expirado';
-                return plan || 'Inativo';
+                if (active === false) return 'Inativo';
+                return 'Ativo';
               })()}
             </span>
           </div>

@@ -13,8 +13,9 @@ function getGreeting(): string {
 }
 
 export default function Header() {
-  const { profile } = useAuth();
-  const firstName = profile?.name?.split(' ')[0] || 'Usuário';
+  const { profile, user } = useAuth();
+  const fullName = profile?.name && profile.name !== 'Usuário' ? profile.name : user?.displayName || 'Usuário';
+  const firstName = fullName.split(' ')[0];
 
   return (
     <header className={styles.header} id="app-header">

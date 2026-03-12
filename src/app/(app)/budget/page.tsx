@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { getBudgets, setBudget, deleteBudget, type MonthlyBudget } from '@/lib/planner';
 import { getCategories, getTransactions, getCategoryTotals } from '@/lib/firestore';
@@ -9,8 +9,6 @@ import {
   PieChart,
   Calendar,
   Edit3,
-  Check,
-  X,
   AlertTriangle,
 } from 'lucide-react';
 import { format } from 'date-fns';
@@ -54,15 +52,35 @@ export default function BudgetPage() {
 
   const categoryTotals = getCategoryTotals(transactions);
 
-  const handleSetBudget = async (category: string) => {
-    if (!user) return;
-    const value = parseCurrency(editValue);
-    if (value < 0) return;
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savingRef = useRef(false);
 
-    await setBudget(user.uid, category, value, currentMonth, currentYear);
+  const handleSaveBudget = useCallback(async (category: string, rawValue: string) => {
+    if (!user || savingRef.current) return;
+    const value = parseCurrency(rawValue);
+    if (value < 0) return;
+    savingRef.current = true;
+    try {
+      await setBudget(user.uid, category, value, currentMonth, currentYear);
+      await loadData();
+    } finally {
+      savingRef.current = false;
+    }
+  }, [user, currentMonth, currentYear, loadData]);
+
+  const handleEditChange = (category: string, masked: string) => {
+    setEditValue(masked);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      handleSaveBudget(category, masked);
+    }, 1000);
+  };
+
+  const handleEditBlur = (category: string) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    handleSaveBudget(category, editValue);
     setEditingId(null);
     setEditValue('');
-    await loadData();
   };
 
   const handleDeleteBudget = async (budgetId: string) => {
@@ -189,22 +207,11 @@ export default function BudgetPage() {
                       <CurrencyInput
                         placeholder="R$ 0,00"
                         value={editValue}
-                        onChange={(masked) => setEditValue(masked)}
+                        onChange={(masked: string) => handleEditChange(row.category.name, masked)}
+                        onBlur={() => handleEditBlur(row.category.name)}
                         className={styles.editInput}
                         autoFocus
                       />
-                      <button
-                        onClick={() => handleSetBudget(row.category.name)}
-                        className={styles.editConfirm}
-                      >
-                        <Check size={14} />
-                      </button>
-                      <button
-                        onClick={() => setEditingId(null)}
-                        className={styles.editCancel}
-                      >
-                        <X size={14} />
-                      </button>
                     </div>
                   ) : (
                     <button

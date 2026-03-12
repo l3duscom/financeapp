@@ -56,7 +56,7 @@ const accountItems = [
 
 export default function BottomNav() {
   const pathname = usePathname();
-  const { profile, signOut } = useAuth();
+  const { profile, signOut, user } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [showAll, setShowAll] = useState(false);
 
@@ -128,20 +128,21 @@ export default function BottomNav() {
         {/* User card */}
         <div className={styles.sheetUser}>
           <div className={styles.sheetAvatar}>
-            {profile?.name?.charAt(0)?.toUpperCase() || 'U'}
+            {(profile?.name && profile.name !== 'Usuário' ? profile.name : user?.displayName || 'U').charAt(0).toUpperCase()}
           </div>
           <div className={styles.sheetUserInfo}>
-            <span className={styles.sheetUserName}>{profile?.name || 'Usuário'}</span>
+            <span className={styles.sheetUserName}>{profile?.name && profile.name !== 'Usuário' ? profile.name : user?.displayName || 'Usuário'}</span>
             <span className={styles.sheetUserPlan}>
               {(() => {
                 const plan = profile?.subscription?.plan;
                 const active = profile?.subscription?.active;
-                if (!active) return 'Inativo';
                 if (plan === 'trial') return 'Trial';
                 if (plan === 'annual' || plan === 'anual') return 'Anual';
                 if (plan === 'monthly' || plan === 'mensal') return 'Mensal';
+                if (plan === 'premium') return 'Premium';
                 if (plan === 'expired') return 'Expirado';
-                return plan || 'Inativo';
+                if (active === false) return 'Inativo';
+                return 'Ativo';
               })()}
             </span>
           </div>

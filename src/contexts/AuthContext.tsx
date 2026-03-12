@@ -15,7 +15,7 @@ import {
   signOut as firebaseSignOut,
   type User,
 } from 'firebase/auth';
-import { doc, getDoc, setDoc, deleteDoc, Timestamp } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, deleteDoc, Timestamp } from 'firebase/firestore';
 import { auth, db } from '@/lib/firebase';
 import type { UserProfile } from '@/types';
 
@@ -49,10 +49,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
         try {
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
-          const profile = userDoc.exists()
+          const userRef = doc(db, 'users', user.uid);
+          const userDoc = await getDoc(userRef);
+          let profile = userDoc.exists()
             ? ({ uid: user.uid, ...userDoc.data() } as UserProfile)
             : null;
+
+          if (profile && (!profile.name || profile.name === 'Usuário') && user.displayName) {
+            await updateDoc(userRef, { name: user.displayName });
+            profile = { ...profile, name: user.displayName };
+          }
 
           setState({
             user,
@@ -98,9 +104,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       
-      // Create profile if first time with 3-day trial
-      const userDoc = await getDoc(doc(db, 'users', result.user.uid));
-      if (!userDoc.exists()) {
+      const userRef = doc(db, 'users', result.user.uid);
+      const userDoc = await getDoc(userRef);
+
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        if ((!data.name || data.name === 'Usuário') && result.user.displayName) {
+          await updateDoc(userRef, {
+            name: result.user.displayName,
+            photoURL: result.user.photoURL || data.photoURL || '',
+          });
+        }
+      } else {
         const userEmail = result.user.email?.toLowerCase() || '';
 
         // Check if there's a pending Hotmart activation

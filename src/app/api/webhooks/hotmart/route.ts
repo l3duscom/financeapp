@@ -85,13 +85,14 @@ export async function POST(request: Request) {
     const { event, data } = payload;
 
     console.log(`[Hotmart Webhook] Event: ${event}`);
-    console.log(`[Hotmart Webhook] Buyer: ${data.buyer.email}`);
+    console.log(`[Hotmart Webhook] Buyer: ${data.buyer.email}, Name: ${data.buyer.name}`);
 
     const buyerEmail = data.buyer.email?.toLowerCase();
     if (!buyerEmail) {
       return NextResponse.json({ error: 'Missing buyer email' }, { status: 400 });
     }
 
+    const buyerName = (data.buyer.name || '').trim() || buyerEmail.split('@')[0];
     const plan = normalizePlan(data.subscription?.plan?.name);
 
     // Activation events
@@ -109,7 +110,7 @@ export async function POST(request: Request) {
         const password = generateRandomPassword();
         firebaseUser = await adminAuth.createUser({
           email: buyerEmail,
-          displayName: data.buyer.name,
+          displayName: buyerName,
           password,
         });
         console.log(`[Hotmart Webhook] New user created: ${firebaseUser.uid}`);
@@ -120,7 +121,7 @@ export async function POST(request: Request) {
           const resetLink = buildAppResetLink(firebaseLink);
           await sendWelcomeEmail({
             to: buyerEmail,
-            name: data.buyer.name,
+            name: buyerName,
             plan,
             tempPassword: password,
             resetLink,
@@ -136,17 +137,21 @@ export async function POST(request: Request) {
       const userDoc = await userRef.get();
 
       if (userDoc.exists) {
-        // User exists — just activate subscription
-        await userRef.update({
+        const existingData = userDoc.data() || {};
+        const updates: Record<string, unknown> = {
           'subscription.active': true,
           'subscription.plan': plan,
           'subscription.hotmartTransaction': data.purchase.transaction,
           'subscription.activatedAt': new Date(),
-        });
+        };
+        if (!existingData.name || existingData.name === 'Usuário') {
+          updates.name = buyerName;
+        }
+        await userRef.update(updates);
       } else {
         // Create full profile
         await userRef.set({
-          name: data.buyer.name,
+          name: buyerName,
           email: buyerEmail,
           photoURL: '',
           createdAt: new Date(),
@@ -181,7 +186,7 @@ export async function POST(request: Request) {
       // Also save pending activation for Google login flow
       await adminDb.collection('pendingActivations').doc(buyerEmail).set({
         email: buyerEmail,
-        name: data.buyer.name,
+        name: buyerName,
         plan,
         transaction: data.purchase.transaction,
         activatedAt: new Date(),

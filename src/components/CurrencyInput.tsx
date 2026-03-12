@@ -5,6 +5,7 @@ import { useCallback } from 'react';
 interface CurrencyInputProps {
   value: string;
   onChange: (maskedValue: string, numericValue: number) => void;
+  onBlur?: () => void;
   placeholder?: string;
   className?: string;
   autoFocus?: boolean;
@@ -31,6 +32,7 @@ export function parseCurrency(masked: string): number {
 export default function CurrencyInput({
   value,
   onChange,
+  onBlur,
   placeholder = 'R$ 0,00',
   className,
   autoFocus,
@@ -55,6 +57,7 @@ export default function CurrencyInput({
       placeholder={placeholder}
       value={value}
       onChange={handleChange}
+      onBlur={onBlur}
       autoFocus={autoFocus}
       style={style}
     />
