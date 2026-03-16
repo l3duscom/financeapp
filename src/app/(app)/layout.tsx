@@ -72,7 +72,7 @@ export default function AppLayout({
               <h2 className={styles.blockedTitle}>Período de teste encerrado</h2>
               <p className={styles.blockedDesc}>
                 Seu teste gratuito de 3 dias terminou. Para continuar usando 
-                todas as funcionalidades do FinanceApp, assine um dos nossos planos.
+                todas as funcionalidades do Finly Pro+, assine um dos nossos planos.
               </p>
               <div className={styles.blockedActions}>
                 <a href={CHECKOUT_URL} target="_blank" rel="noopener noreferrer" className={styles.blockedCtaPrimary}>

@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'FinanceApp <noreply@financeapp.com>';
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Finly Pro+ <noreply@financeapp.com>';
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://financeapp.vercel.app';
 
 interface WelcomeEmailParams {
@@ -22,7 +22,7 @@ export async function sendWelcomeEmail({ to, name, plan, tempPassword, resetLink
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to,
-      subject: `Bem-vindo ao FinanceApp, ${firstName}! 🎉`,
+      subject: `Bem-vindo ao Finly Pro+, ${firstName}! 🎉`,
       html: `
 <!DOCTYPE html>
 <html>
@@ -36,15 +36,15 @@ export async function sendWelcomeEmail({ to, name, plan, tempPassword, resetLink
     <!-- Header -->
     <div style="text-align:center;margin-bottom:32px;">
       <div style="display:inline-block;width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#6366f1,#8b5cf6);line-height:56px;font-size:24px;color:white;">💰</div>
-      <h1 style="color:#ffffff;font-size:24px;margin:16px 0 4px;">Finance<span style="color:#6366f1;">App</span></h1>
+      <h1 style="color:#ffffff;font-size:24px;margin:16px 0 4px;">Finly <span style="color:#6366f1;">Pro+</span></h1>
     </div>
 
     <!-- Card -->
     <div style="background:#1a1a2e;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;">
-      
+
       <h2 style="color:#ffffff;font-size:20px;margin:0 0 8px;">Olá, ${firstName}! 👋</h2>
       <p style="color:#a0a0b0;font-size:15px;line-height:1.7;margin:0 0 24px;">
-        Sua conta no <strong style="color:#fff;">FinanceApp</strong> foi criada com sucesso! 
+        Sua conta no <strong style="color:#fff;">Finly Pro+</strong> foi criada com sucesso! 
         Agora você tem acesso completo ao seu gerenciador financeiro inteligente.
       </p>
 
@@ -75,7 +75,7 @@ export async function sendWelcomeEmail({ to, name, plan, tempPassword, resetLink
         <br>
         ` : ''}
         <a href="${loginUrl}" style="display:inline-block;padding:14px 32px;background:${resetLink ? 'transparent;border:1px solid rgba(99,102,241,0.3)' : 'linear-gradient(135deg,#6366f1,#8b5cf6)'};color:${resetLink ? '#6366f1' : 'white'};text-decoration:none;border-radius:10px;font-weight:600;font-size:15px;margin-top:8px;">
-          ${resetLink ? 'Ou entre com Google' : 'Acessar o FinanceApp'}
+          ${resetLink ? 'Ou entre com Google' : 'Acessar o Finly Pro+'}
         </a>
       </div>
 
@@ -87,7 +87,7 @@ export async function sendWelcomeEmail({ to, name, plan, tempPassword, resetLink
     <!-- Footer -->
     <div style="text-align:center;margin-top:24px;">
       <p style="color:#505060;font-size:12px;margin:0;">
-        © ${new Date().getFullYear()} FinanceApp — Seu gerenciador financeiro inteligente
+        © ${new Date().getFullYear()} Finly Pro+ — Seu gerenciador financeiro inteligente
       </p>
     </div>
 
@@ -123,7 +123,7 @@ export async function sendPasswordResetEmail({ to, name, resetLink }: PasswordRe
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
       to,
-      subject: 'Redefinir sua senha — FinanceApp',
+      subject: 'Redefinir sua senha — Finly Pro+',
       html: `
 <!DOCTYPE html>
 <html>
@@ -136,13 +136,13 @@ export async function sendPasswordResetEmail({ to, name, resetLink }: PasswordRe
     
     <div style="text-align:center;margin-bottom:32px;">
       <div style="display:inline-block;width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,#6366f1,#8b5cf6);line-height:56px;font-size:24px;color:white;">🔐</div>
-      <h1 style="color:#ffffff;font-size:24px;margin:16px 0 4px;">Finance<span style="color:#6366f1;">App</span></h1>
+      <h1 style="color:#ffffff;font-size:24px;margin:16px 0 4px;">Finly <span style="color:#6366f1;">Pro+</span></h1>
     </div>
 
     <div style="background:#1a1a2e;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;">
       <h2 style="color:#ffffff;font-size:20px;margin:0 0 8px;">Olá, ${firstName}!</h2>
       <p style="color:#a0a0b0;font-size:15px;line-height:1.7;margin:0 0 24px;">
-        Recebemos uma solicitação para redefinir a senha da sua conta no FinanceApp.
+        Recebemos uma solicitação para redefinir a senha da sua conta no Finly Pro+.
         Clique no botão abaixo para criar uma nova senha.
       </p>
 
@@ -160,7 +160,7 @@ export async function sendPasswordResetEmail({ to, name, resetLink }: PasswordRe
 
     <div style="text-align:center;margin-top:24px;">
       <p style="color:#505060;font-size:12px;margin:0;">
-        © ${new Date().getFullYear()} FinanceApp — Seu gerenciador financeiro inteligente
+        © ${new Date().getFullYear()} Finly Pro+ — Seu gerenciador financeiro inteligente
       </p>
     </div>
 

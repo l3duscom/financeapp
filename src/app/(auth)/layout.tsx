@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'FinanceApp - Acesso',
-  description: 'Faça login na sua conta FinanceApp',
+  title: 'Finly Pro+ - Acesso',
+  description: 'Faça login na sua conta Finly Pro+',
 };
 
 export default function AuthLayout({

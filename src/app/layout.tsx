@@ -20,7 +20,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'FinanceApp - Gerenciador Financeiro Pessoal',
+  title: 'Finly Pro+ - Gerenciador Financeiro Pessoal',
   description:
     'Gerencie suas finanças pessoais de forma inteligente. Controle gastos, planeje seu orçamento e alcance seus objetivos financeiros.',
   keywords: ['finanças pessoais', 'gerenciador financeiro', 'orçamento', 'controle de gastos'],
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'FinanceApp',
+    title: 'Finly Pro+',
   },
 };
 

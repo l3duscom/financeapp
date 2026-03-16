@@ -1,4 +1,4 @@
-# FinanceApp SaaS - Gerenciador Financeiro Pessoal
+# Finly Pro+ - Gerenciador Financeiro Pessoal
 
 SaaS mobile-first de gerenciamento financeiro pessoal, construído com **Next.js 15 (App Router)**, **Firebase** (Auth + Firestore + Storage), integrado com **Asaas** como gateway de pagamento e assinaturas, hospedado na **Vercel**.
 

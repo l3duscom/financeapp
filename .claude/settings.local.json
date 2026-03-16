@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep:*)",
+      "Bash(find /c/Users/Eduardo/Documents/projects/financeiro -type f \\\\\\(-name *.ts -o -name *.tsx -o -name *.js -o -name *.mjs -o -name *.json -o -name *.css -o -name *.html -o -name .env* -o -name *.xml -o -name *.yml -o -name *.yaml \\\\\\))",
+      "Bash(grep -r -i \"financeapp\\\\|finance app\\\\|finapp\" /c/Users/Eduardo/Documents/projects/financeiro/.env*)",
+      "Bash(find /c/Users/Eduardo/Documents/projects/financeiro -name manifest.json -o -name *.html)"
+    ]
+  }
+}

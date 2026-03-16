@@ -4,7 +4,7 @@
  * Uso: node scripts/seed.mjs
  * 
  * Credenciais do usuário de teste:
- *   Email: teste@financeapp.com
+ *   Email: teste@finlypro.com
  *   Senha: Teste@123
  */
 
@@ -25,7 +25,7 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-const TEST_EMAIL = 'teste@financeapp.com';
+const TEST_EMAIL = 'teste@finlypro.com';
 const TEST_PASSWORD = 'Teste@123';
 const TEST_NAME = 'Usuário Teste';
 
